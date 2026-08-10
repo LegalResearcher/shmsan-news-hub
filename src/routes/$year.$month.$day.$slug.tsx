@@ -85,10 +85,12 @@ function ArticlePage() {
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-border py-3 text-xs text-muted-foreground">
               <span className="font-bold text-foreground">{article.author?.name ?? "هيئة التحرير"}</span>
               <span>{formatArabicDateTime(article.published_at)}</span>
+              {/* إخفاء مؤقت لعدد المشاهدات - لإعادة الإظهار احذفي التعليق عن الكتلة التالية
               <span className="flex items-center gap-1">
                 <Eye className="h-3.5 w-3.5" />
                 {article.views.toLocaleString("ar")} مشاهدة
               </span>
+              */}
               <span className="flex items-center gap-1">
                 <Share2 className="h-3.5 w-3.5" />
                 مشاركة
