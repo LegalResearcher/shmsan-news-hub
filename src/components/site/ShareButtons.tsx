@@ -13,8 +13,8 @@ function getShareUrl() {
   }
 }
 
-function buildShareText(title: string) {
-  return `${title}\n\n${FOLLOW_LINE}`;
+function buildShareText(title: string, url: string) {
+  return `${title}\n\n${url}\n\n${FOLLOW_LINE}`;
 }
 
 interface ShareButtonsProps {
@@ -33,24 +33,22 @@ export function ShareButtons({ title }: ShareButtonsProps) {
 
   function shareTwitter() {
     const url = getShareUrl();
-    const text = buildShareText(title);
-    openShareWindow(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
-    );
+    const text = buildShareText(title, url);
+    // الرابط مضمّن داخل النص لضبط الترتيب (العنوان ثم الرابط ثم عبارة المتابعة)
+    openShareWindow(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`);
   }
 
   function shareWhatsApp() {
     const url = getShareUrl();
-    const text = `${buildShareText(title)}\n\n${url}`;
+    const text = buildShareText(title, url);
     openShareWindow(`https://wa.me/?text=${encodeURIComponent(text)}`);
   }
 
   function shareTelegram() {
     const url = getShareUrl();
-    const text = buildShareText(title);
-    openShareWindow(
-      `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`
-    );
+    const text = buildShareText(title, url);
+    // بدون معامل url منفصل، حتى لا يكرر تليجرام الرابط أو يغيّر ترتيبه
+    openShareWindow(`https://t.me/share/url?url=&text=${encodeURIComponent(text)}`);
   }
 
   const buttons = [
