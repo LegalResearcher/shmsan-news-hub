@@ -4,7 +4,13 @@ const TELEGRAM_CHANNEL = "https://t.me/shmsannews";
 const FOLLOW_LINE = `للمزيد من الأخبار العاجلة تابعونا على تليجرام: ${TELEGRAM_CHANNEL}`;
 
 function getShareUrl() {
-  return typeof window !== "undefined" ? window.location.href : "";
+  if (typeof window === "undefined") return "";
+  // إرجاع الرابط لشكله العربي المقروء بدل الترميز %D8%... القبيح، مع بقائه رابطاً صحيحاً وشغّالاً
+  try {
+    return decodeURI(window.location.href);
+  } catch {
+    return window.location.href;
+  }
 }
 
 function buildShareText(title: string) {
