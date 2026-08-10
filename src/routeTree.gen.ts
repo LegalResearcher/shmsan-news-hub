@@ -11,10 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MostReadRouteImport } from './routes/most-read'
 import { Route as RssRouteImport } from './routes/rss'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
+import { Route as ApiPublicRssDotxmlRouteImport } from './routes/api/public/rss[.]xml'
 import { Route as YearMonthDaySlugRouteImport } from './routes/$year.$month.$day.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -25,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MostReadRoute = MostReadRouteImport.update({
@@ -47,6 +54,11 @@ const CategorySlugRoute = CategorySlugRouteImport.update({
   path: '/category/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicRssDotxmlRoute = ApiPublicRssDotxmlRouteImport.update({
+  id: '/api/public/rss.xml',
+  path: '/api/public/rss.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const YearMonthDaySlugRoute = YearMonthDaySlugRouteImport.update({
   id: '/$year/$month/$day/$slug',
   path: '/$year/$month/$day/$slug',
@@ -56,29 +68,35 @@ const YearMonthDaySlugRoute = YearMonthDaySlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/most-read': typeof MostReadRoute
   '/rss': typeof RssRoute
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/most-read': typeof MostReadRoute
   '/rss': typeof RssRoute
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/most-read': typeof MostReadRoute
   '/rss': typeof RssRoute
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
 }
 export interface FileRouteTypes {
@@ -86,38 +104,46 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/auth'
     | '/most-read'
     | '/rss'
     | '/search'
     | '/category/$slug'
+    | '/api/public/rss.xml'
     | '/$year/$month/$day/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/auth'
     | '/most-read'
     | '/rss'
     | '/search'
     | '/category/$slug'
+    | '/api/public/rss.xml'
     | '/$year/$month/$day/$slug'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/auth'
     | '/most-read'
     | '/rss'
     | '/search'
     | '/category/$slug'
+    | '/api/public/rss.xml'
     | '/$year/$month/$day/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
   MostReadRoute: typeof MostReadRoute
   RssRoute: typeof RssRoute
   SearchRoute: typeof SearchRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  ApiPublicRssDotxmlRoute: typeof ApiPublicRssDotxmlRoute
   YearMonthDaySlugRoute: typeof YearMonthDaySlugRoute
 }
 
@@ -135,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/most-read': {
@@ -165,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategorySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/rss.xml': {
+      id: '/api/public/rss.xml'
+      path: '/api/public/rss.xml'
+      fullPath: '/api/public/rss.xml'
+      preLoaderRoute: typeof ApiPublicRssDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$year/$month/$day/$slug': {
       id: '/$year/$month/$day/$slug'
       path: '/$year/$month/$day/$slug'
@@ -178,10 +218,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
   MostReadRoute: MostReadRoute,
   RssRoute: RssRoute,
   SearchRoute: SearchRoute,
   CategorySlugRoute: CategorySlugRoute,
+  ApiPublicRssDotxmlRoute: ApiPublicRssDotxmlRoute,
   YearMonthDaySlugRoute: YearMonthDaySlugRoute,
 }
 export const routeTree = rootRouteImport
