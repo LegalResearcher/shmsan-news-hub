@@ -23,6 +23,8 @@ import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAdminAuthorsRouteImport } from './routes/_authenticated/admin.authors'
 import { Route as AuthenticatedAdminBreakingRouteImport } from './routes/_authenticated/admin.breaking'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
+import { Route as AuthenticatedAdminEditorsRouteImport } from './routes/_authenticated/admin.editors'
+import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminTagsRouteImport } from './routes/_authenticated/admin.tags'
 import { Route as ApiPublicRssDotxmlRouteImport } from './routes/api/public/rss[.]xml'
 import { Route as YearMonthDaySlugRouteImport } from './routes/$year.$month.$day.$slug'
@@ -101,6 +103,17 @@ const AuthenticatedAdminCategoriesRoute =
     path: '/categories',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEditorsRoute =
+  AuthenticatedAdminEditorsRouteImport.update({
+    id: '/editors',
+    path: '/editors',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminTagsRoute = AuthenticatedAdminTagsRouteImport.update({
   id: '/tags',
   path: '/tags',
@@ -142,6 +155,8 @@ export interface FileRoutesByFullPath {
   '/admin/authors': typeof AuthenticatedAdminAuthorsRoute
   '/admin/breaking': typeof AuthenticatedAdminBreakingRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/editors': typeof AuthenticatedAdminEditorsRoute
+  '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -161,6 +176,8 @@ export interface FileRoutesByTo {
   '/admin/authors': typeof AuthenticatedAdminAuthorsRoute
   '/admin/breaking': typeof AuthenticatedAdminBreakingRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/editors': typeof AuthenticatedAdminEditorsRoute
+  '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -183,6 +200,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/authors': typeof AuthenticatedAdminAuthorsRoute
   '/_authenticated/admin/breaking': typeof AuthenticatedAdminBreakingRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/editors': typeof AuthenticatedAdminEditorsRoute
+  '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -205,6 +224,8 @@ export interface FileRouteTypes {
     | '/admin/authors'
     | '/admin/breaking'
     | '/admin/categories'
+    | '/admin/editors'
+    | '/admin/media'
     | '/admin/tags'
     | '/api/public/rss.xml'
     | '/admin/'
@@ -224,6 +245,8 @@ export interface FileRouteTypes {
     | '/admin/authors'
     | '/admin/breaking'
     | '/admin/categories'
+    | '/admin/editors'
+    | '/admin/media'
     | '/admin/tags'
     | '/api/public/rss.xml'
     | '/admin'
@@ -245,6 +268,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/authors'
     | '/_authenticated/admin/breaking'
     | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/editors'
+    | '/_authenticated/admin/media'
     | '/_authenticated/admin/tags'
     | '/api/public/rss.xml'
     | '/_authenticated/admin/'
@@ -366,6 +391,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/editors': {
+      id: '/_authenticated/admin/editors'
+      path: '/editors'
+      fullPath: '/admin/editors'
+      preLoaderRoute: typeof AuthenticatedAdminEditorsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/media': {
+      id: '/_authenticated/admin/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/tags': {
       id: '/_authenticated/admin/tags'
       path: '/tags'
@@ -409,6 +448,8 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAuthorsRoute: typeof AuthenticatedAdminAuthorsRoute
   AuthenticatedAdminBreakingRoute: typeof AuthenticatedAdminBreakingRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminEditorsRoute: typeof AuthenticatedAdminEditorsRoute
+  AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminTagsRoute: typeof AuthenticatedAdminTagsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminPostsIdRoute: typeof AuthenticatedAdminPostsIdRoute
@@ -420,6 +461,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAuthorsRoute: AuthenticatedAdminAuthorsRoute,
   AuthenticatedAdminBreakingRoute: AuthenticatedAdminBreakingRoute,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+  AuthenticatedAdminEditorsRoute: AuthenticatedAdminEditorsRoute,
+  AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminTagsRoute: AuthenticatedAdminTagsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminPostsIdRoute: AuthenticatedAdminPostsIdRoute,
