@@ -63,11 +63,11 @@ export function CrudManager({
         if (value === "") value = null;
         body[field.name] = value;
       }
-      if (editing?.id) {
+      if (editing?.['id']) {
         const { error } = await supabase
           .from(table as never)
           .update(body as never)
-          .eq("id", editing.id as string);
+          .eq("id", editing['id'] as string);
         if (error) throw error;
       } else {
         const { error } = await supabase
@@ -213,7 +213,7 @@ export function CrudManager({
               </tr>
             ) : (
               rows.map((row) => (
-                <tr key={String(row.id)}>
+                <tr key={String(row['id'])}>
                   {tableFields.map((f) => {
                     const value = row[f.name];
                     return (
@@ -241,7 +241,7 @@ export function CrudManager({
                         variant="outline"
                         aria-label="حذف"
                         onClick={() => {
-                          if (confirm("تأكيد الحذف؟")) remove.mutate(String(row.id));
+                          if (confirm("تأكيد الحذف؟")) remove.mutate(String(row['id']));
                         }}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />

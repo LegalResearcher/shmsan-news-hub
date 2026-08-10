@@ -48,16 +48,16 @@ function SettingsPage() {
     mutationFn: async () => {
       const payload = {
         id: 1,
-        site_name: form.site_name || "شمسان نيوز",
-        description: form.description || null,
-        seo_title: form.seo_title || null,
-        seo_description: form.seo_description || null,
-        logo_url: form.logo_url || null,
-        facebook: form.facebook || null,
-        twitter: form.twitter || null,
-        youtube: form.youtube || null,
-        telegram: form.telegram || null,
-        whatsapp: form.whatsapp || null,
+        site_name: form['site_name'] || "شمسان نيوز",
+        description: form['description'] || null,
+        seo_title: form['seo_title'] || null,
+        seo_description: form['seo_description'] || null,
+        logo_url: form['logo_url'] || null,
+        facebook: form['facebook'] || null,
+        twitter: form['twitter'] || null,
+        youtube: form['youtube'] || null,
+        telegram: form['telegram'] || null,
+        whatsapp: form['whatsapp'] || null,
       };
       const { error } = await supabase.from("site_settings").upsert(payload);
       if (error) throw error;
@@ -94,7 +94,7 @@ function SettingsPage() {
           <Textarea
             id="description"
             rows={3}
-            value={form.description ?? ""}
+            value={form['description'] ?? ""}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
         </div>
@@ -103,7 +103,7 @@ function SettingsPage() {
           <Textarea
             id="seo_description"
             rows={3}
-            value={form.seo_description ?? ""}
+            value={form['seo_description'] ?? ""}
             onChange={(e) => setForm({ ...form, seo_description: e.target.value })}
           />
         </div>

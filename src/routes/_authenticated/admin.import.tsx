@@ -32,12 +32,12 @@ function ImportPage() {
       const parsed = JSON.parse(value) as Record<string, unknown>[];
       if (!Array.isArray(parsed)) throw new Error("يجب أن يكون الملف مصفوفة JSON");
       const rows = parsed.map((item, index) => ({
-        title: String(item.title ?? `خبر ${index + 1}`),
-        slug: String(item.slug ?? slugify(String(item.title ?? "")) || `post-${Date.now()}-${index}`),
-        excerpt: (item.excerpt as string) ?? null,
-        content: (item.content as string) ?? null,
-        cover_image: (item.cover_image as string) ?? null,
-        status: (item.status as "draft" | "published" | "scheduled") ?? "draft",
+        title: String(item['title'] ?? `خبر ${index + 1}`),
+        slug: String(item['slug'] ?? (slugify(String(item['title'] ?? "")) || `post-${Date.now()}-${index}`)),
+        excerpt: (item['excerpt'] as string) ?? null,
+        content: (item['content'] as string) ?? null,
+        cover_image: (item['cover_image'] as string) ?? null,
+        status: (item['status'] as "draft" | "published" | "scheduled") ?? "draft",
         created_by: user?.id ?? null,
       }));
       const { error } = await supabase.from("posts").insert(rows);

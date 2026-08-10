@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const nav = [
+const nav: { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
   { to: "/admin", label: "لوحة التحكم", icon: LayoutDashboard, exact: true },
   { to: "/admin/posts", label: "الأخبار", icon: Newspaper },
   { to: "/admin/posts/new", label: "محرر الأخبار", icon: FilePlus2 },
@@ -43,7 +43,7 @@ const nav = [
   { to: "/admin/maintenance", label: "الصيانة والأرشفة", icon: Wrench },
   { to: "/admin/settings", label: "الإعدادات", icon: Settings },
   { to: "/admin/profile", label: "الملف الشخصي", icon: UserCircle },
-] as const;
+];
 
 function AdminLayout() {
   const navigate = useNavigate();
@@ -64,7 +64,7 @@ function AdminLayout() {
       {nav.map((item) => (
         <Link
           key={item.to}
-          to={item.to}
+          to={item.to as never}
           activeOptions={{ exact: item.exact ?? false }}
           activeProps={{ className: "bg-sidebar-primary text-sidebar-primary-foreground" }}
           onClick={() => setOpen(false)}
