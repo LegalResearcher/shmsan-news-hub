@@ -5,7 +5,7 @@ import { NewsCard } from "@/components/site/NewsCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { MostRead } from "@/components/site/MostRead";
 import { AdSlot } from "@/components/site/AdSlot";
-import type { PostSummary } from "@/lib/news.types";
+import type { CategoryRow, PostSummary } from "@/lib/news.types";
 
 export const Route = createFileRoute("/category/$slug")({
   loader: async ({ params }) => {
@@ -46,6 +46,7 @@ export const Route = createFileRoute("/category/$slug")({
 
 function CategoryPage() {
   const { category, posts, children } = Route.useLoaderData();
+  const subs = children as unknown as CategoryRow[];
   const items = posts as unknown as PostSummary[];
 
   return (
@@ -57,9 +58,9 @@ function CategoryPage() {
             {category!.description ? (
               <p className="mb-6 text-sm leading-7 text-muted-foreground">{category!.description}</p>
             ) : null}
-            {children.length ? (
+            {subs.length ? (
               <p className="mb-6 text-sm text-muted-foreground">
-                أقسام فرعية: {children.map((c) => c.name).join(" • ")}
+                أقسام فرعية: {subs.map((c) => c.name).join(" • ")}
               </p>
             ) : null}
             {items.length ? (

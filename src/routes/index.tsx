@@ -8,7 +8,7 @@ import { MostRead } from "@/components/site/MostRead";
 import { MarketWidget } from "@/components/site/MarketWidget";
 import { AdSlot } from "@/components/site/AdSlot";
 import { Link } from "@tanstack/react-router";
-import { articlePath, formatArabicDate, type PostSummary } from "@/lib/news.types";
+import { articlePath, formatArabicDate, type CategoryRow, type PostSummary } from "@/lib/news.types";
 
 export const Route = createFileRoute("/")({
   loader: () => getHomeData(),
@@ -38,7 +38,9 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const { posts, categories, breaking, ads, mostRead } = Route.useLoaderData();
+  const loaderData = Route.useLoaderData();
+  const { posts, breaking, ads, mostRead } = loaderData;
+  const categories = loaderData.categories as unknown as CategoryRow[];
   const all = posts as unknown as PostSummary[];
   const featured = all.filter((p) => p.is_featured).slice(0, 5);
   const hero = featured.length ? featured : all.slice(0, 5);
