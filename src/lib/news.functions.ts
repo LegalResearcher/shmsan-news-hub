@@ -2,18 +2,39 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { publicClient, POST_FIELDS } from "./news.server";
 
+// الأقسام التي تُعرض أخبارها ضمن قائمة "أحدث الأخبار" بالرئيسية
+const LATEST_NEWS_CATEGORY_NAMES = ["أخبار وتقارير", "شؤون دولية"];
+
 export const getHomeData = createServerFn({ method: "GET" }).handler(async () => {
   const db = publicClient();
-  const [posts, categories, breaking, ads] = await Promise.all([
+
+  const { data: categories } = await db
+    .from("categories")
+    .select("id,name,slug,description,sort_order,parent_id")
+    .order("sort_order");
+
+  const latestNewsCategoryIds = (categories ?? [])
+    .filter((c) => LATEST_NEWS_CATEGORY_NAMES.includes(c.name))
+    .map((c) => c.id);
+
+  const [posts, breaking, ads, latestNews] = await Promise.all([
     db
       .from("posts")
       .select(POST_FIELDS)
       .eq("status", "published")
       .order("published_at", { ascending: false })
       .limit(60),
-    db.from("categories").select("id,name,slug,description,sort_order,parent_id").order("sort_order"),
     db.from("breaking_news").select("id,text,link").eq("is_active", true).order("sort_order"),
     db.from("ads").select("id,name,placement,image_url,link_url").eq("is_active", true),
+    latestNewsCategoryIds.length
+      ? db
+          .from("posts")
+          .select(POST_FIELDS)
+          .eq("status", "published")
+          .in("category_id", latestNewsCategoryIds)
+          .order("published_at", { ascending: false })
+          .limit(60)
+      : Promise.resolve({ data: [] as unknown[] }),
   ]);
   const mostRead = await db
     .from("posts")
@@ -23,10 +44,11 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     .limit(8);
   return {
     posts: posts.data ?? [],
-    categories: categories.data ?? [],
+    categories: categories ?? [],
     breaking: breaking.data ?? [],
     ads: ads.data ?? [],
     mostRead: mostRead.data ?? [],
+    latestNews: latestNews.data ?? [],
   };
 });
 
