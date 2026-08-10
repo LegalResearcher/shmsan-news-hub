@@ -10,18 +10,25 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MostReadRouteImport } from './routes/most-read'
 import { Route as RssRouteImport } from './routes/rss'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicRssDotxmlRouteImport } from './routes/api/public/rss[.]xml'
 import { Route as YearMonthDaySlugRouteImport } from './routes/$year.$month.$day.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -49,10 +56,20 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const CategorySlugRoute = CategorySlugRouteImport.update({
   id: '/category/$slug',
   path: '/category/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const ApiPublicRssDotxmlRoute = ApiPublicRssDotxmlRouteImport.update({
   id: '/api/public/rss.xml',
@@ -72,8 +89,10 @@ export interface FileRoutesByFullPath {
   '/most-read': typeof MostReadRoute
   '/rss': typeof RssRoute
   '/search': typeof SearchRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/category/$slug': typeof CategorySlugRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
 }
 export interface FileRoutesByTo {
@@ -85,18 +104,22 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/most-read': typeof MostReadRoute
   '/rss': typeof RssRoute
   '/search': typeof SearchRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/category/$slug': typeof CategorySlugRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
 }
 export interface FileRouteTypes {
@@ -108,8 +131,10 @@ export interface FileRouteTypes {
     | '/most-read'
     | '/rss'
     | '/search'
+    | '/admin'
     | '/category/$slug'
     | '/api/public/rss.xml'
+    | '/admin/'
     | '/$year/$month/$day/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,22 +146,27 @@ export interface FileRouteTypes {
     | '/search'
     | '/category/$slug'
     | '/api/public/rss.xml'
+    | '/admin'
     | '/$year/$month/$day/$slug'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/auth'
     | '/most-read'
     | '/rss'
     | '/search'
+    | '/_authenticated/admin'
     | '/category/$slug'
     | '/api/public/rss.xml'
+    | '/_authenticated/admin/'
     | '/$year/$month/$day/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   MostReadRoute: typeof MostReadRoute
@@ -154,6 +184,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -191,12 +228,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/category/$slug': {
       id: '/category/$slug'
       path: '/category/$slug'
       fullPath: '/category/$slug'
       preLoaderRoute: typeof CategorySlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/api/public/rss.xml': {
       id: '/api/public/rss.xml'
@@ -215,8 +266,31 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   MostReadRoute: MostReadRoute,
