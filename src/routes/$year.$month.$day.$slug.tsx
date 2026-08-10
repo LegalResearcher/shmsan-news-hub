@@ -1,11 +1,13 @@
+import { useRef, useEffect } from "react";
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
-import { Eye, Share2 } from "lucide-react";
+import { Eye } from "lucide-react";
 import { getPostBySlug } from "@/lib/news.functions";
 import { SiteShell } from "@/components/site/SiteShell";
 import { NewsCard } from "@/components/site/NewsCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { MostRead } from "@/components/site/MostRead";
 import { AdSlot } from "@/components/site/AdSlot";
+import { ShareButtons } from "@/components/site/ShareButtons";
 import { formatArabicDateTime, type PostFull, type PostSummary } from "@/lib/news.types";
 
 export const Route = createFileRoute("/$year/$month/$day/$slug")({
@@ -54,6 +56,22 @@ function ArticlePage() {
   const { post, related } = Route.useLoaderData();
   const article = post as unknown as PostFull;
   const others = related as unknown as PostSummary[];
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  // إضافة اسم الموقع ورابط الخبر تلقائياً عند نسخ نص من داخل المقال
+  useEffect(() => {
+    const node = bodyRef.current;
+    if (!node) return;
+    function handleCopy(e: ClipboardEvent) {
+      const selection = window.getSelection()?.toString();
+      if (!selection) return;
+      const attribution = `\n\nالمصدر: شمسان نيوز - ${window.location.href}`;
+      e.clipboardData?.setData("text/plain", `${selection}${attribution}`);
+      e.preventDefault();
+    }
+    node.addEventListener("copy", handleCopy);
+    return () => node.removeEventListener("copy", handleCopy);
+  }, []);
 
   return (
     <SiteShell>
@@ -91,10 +109,7 @@ function ArticlePage() {
                 {article.views.toLocaleString("ar")} مشاهدة
               </span>
               */}
-              <span className="flex items-center gap-1">
-                <Share2 className="h-3.5 w-3.5" />
-                مشاركة
-              </span>
+              <ShareButtons title={article.title} />
             </div>
 
             {article.cover_image ? (
@@ -112,6 +127,7 @@ function ArticlePage() {
             ) : null}
 
             <div
+              ref={bodyRef}
               className="article-body mt-6"
               dangerouslySetInnerHTML={{ __html: article.content ?? "" }}
             />
