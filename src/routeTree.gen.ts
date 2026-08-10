@@ -19,6 +19,11 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
+import { Route as AuthenticatedAdminAuthorsRouteImport } from './routes/_authenticated/admin.authors'
+import { Route as AuthenticatedAdminBreakingRouteImport } from './routes/_authenticated/admin.breaking'
+import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
+import { Route as AuthenticatedAdminTagsRouteImport } from './routes/_authenticated/admin.tags'
 import { Route as ApiPublicRssDotxmlRouteImport } from './routes/api/public/rss[.]xml'
 import { Route as YearMonthDaySlugRouteImport } from './routes/$year.$month.$day.$slug'
 
@@ -71,6 +76,34 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminAuthorsRoute =
+  AuthenticatedAdminAuthorsRouteImport.update({
+    id: '/authors',
+    path: '/authors',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBreakingRoute =
+  AuthenticatedAdminBreakingRouteImport.update({
+    id: '/breaking',
+    path: '/breaking',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCategoriesRoute =
+  AuthenticatedAdminCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminTagsRoute = AuthenticatedAdminTagsRouteImport.update({
+  id: '/tags',
+  path: '/tags',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const ApiPublicRssDotxmlRoute = ApiPublicRssDotxmlRouteImport.update({
   id: '/api/public/rss.xml',
   path: '/api/public/rss.xml',
@@ -91,6 +124,11 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/category/$slug': typeof CategorySlugRoute
+  '/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/admin/authors': typeof AuthenticatedAdminAuthorsRoute
+  '/admin/breaking': typeof AuthenticatedAdminBreakingRoute
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
@@ -103,6 +141,11 @@ export interface FileRoutesByTo {
   '/rss': typeof RssRoute
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/admin/authors': typeof AuthenticatedAdminAuthorsRoute
+  '/admin/breaking': typeof AuthenticatedAdminBreakingRoute
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
@@ -118,6 +161,11 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/category/$slug': typeof CategorySlugRoute
+  '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/_authenticated/admin/authors': typeof AuthenticatedAdminAuthorsRoute
+  '/_authenticated/admin/breaking': typeof AuthenticatedAdminBreakingRoute
+  '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
@@ -133,6 +181,11 @@ export interface FileRouteTypes {
     | '/search'
     | '/admin'
     | '/category/$slug'
+    | '/admin/ads'
+    | '/admin/authors'
+    | '/admin/breaking'
+    | '/admin/categories'
+    | '/admin/tags'
     | '/api/public/rss.xml'
     | '/admin/'
     | '/$year/$month/$day/$slug'
@@ -145,6 +198,11 @@ export interface FileRouteTypes {
     | '/rss'
     | '/search'
     | '/category/$slug'
+    | '/admin/ads'
+    | '/admin/authors'
+    | '/admin/breaking'
+    | '/admin/categories'
+    | '/admin/tags'
     | '/api/public/rss.xml'
     | '/admin'
     | '/$year/$month/$day/$slug'
@@ -159,6 +217,11 @@ export interface FileRouteTypes {
     | '/search'
     | '/_authenticated/admin'
     | '/category/$slug'
+    | '/_authenticated/admin/ads'
+    | '/_authenticated/admin/authors'
+    | '/_authenticated/admin/breaking'
+    | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/tags'
     | '/api/public/rss.xml'
     | '/_authenticated/admin/'
     | '/$year/$month/$day/$slug'
@@ -249,6 +312,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/ads': {
+      id: '/_authenticated/admin/ads'
+      path: '/ads'
+      fullPath: '/admin/ads'
+      preLoaderRoute: typeof AuthenticatedAdminAdsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/authors': {
+      id: '/_authenticated/admin/authors'
+      path: '/authors'
+      fullPath: '/admin/authors'
+      preLoaderRoute: typeof AuthenticatedAdminAuthorsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/breaking': {
+      id: '/_authenticated/admin/breaking'
+      path: '/breaking'
+      fullPath: '/admin/breaking'
+      preLoaderRoute: typeof AuthenticatedAdminBreakingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/categories': {
+      id: '/_authenticated/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/tags': {
+      id: '/_authenticated/admin/tags'
+      path: '/tags'
+      fullPath: '/admin/tags'
+      preLoaderRoute: typeof AuthenticatedAdminTagsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/public/rss.xml': {
       id: '/api/public/rss.xml'
       path: '/api/public/rss.xml'
@@ -267,10 +365,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAdsRoute: typeof AuthenticatedAdminAdsRoute
+  AuthenticatedAdminAuthorsRoute: typeof AuthenticatedAdminAuthorsRoute
+  AuthenticatedAdminBreakingRoute: typeof AuthenticatedAdminBreakingRoute
+  AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminTagsRoute: typeof AuthenticatedAdminTagsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAdsRoute: AuthenticatedAdminAdsRoute,
+  AuthenticatedAdminAuthorsRoute: AuthenticatedAdminAuthorsRoute,
+  AuthenticatedAdminBreakingRoute: AuthenticatedAdminBreakingRoute,
+  AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+  AuthenticatedAdminTagsRoute: AuthenticatedAdminTagsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
