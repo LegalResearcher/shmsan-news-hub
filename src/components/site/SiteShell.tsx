@@ -28,6 +28,17 @@ const TEMP_HIDDEN_CATEGORIES = [
   "فيديو",
 ];
 
+// الترتيب المطلوب للأقسام الظاهرة في كل قوائم الموقع (Header + Footer)
+const CATEGORY_ORDER = [
+  "أهم الأخبار",
+  "أخبار وتقارير",
+  "اليمن في الصحافة",
+  "شؤون دولية",
+  "آراء واتجاهات",
+  "منوعات",
+  "رياضة",
+];
+
 export function SiteShell({ children, categories, breaking, showTicker = true }: Props) {
   const fetchNav = useServerFn(getNavigation);
   const { data } = useQuery({
@@ -37,9 +48,16 @@ export function SiteShell({ children, categories, breaking, showTicker = true }:
     staleTime: 5 * 60 * 1000,
   });
 
-  const cats = (categories ?? data?.categories ?? []).filter(
-    (c) => !TEMP_HIDDEN_CATEGORIES.includes(c.name)
-  );
+  const cats = (categories ?? data?.categories ?? [])
+    .filter((c) => !TEMP_HIDDEN_CATEGORIES.includes(c.name))
+    .sort((a, b) => {
+      const ai = CATEGORY_ORDER.indexOf(a.name);
+      const bi = CATEGORY_ORDER.indexOf(b.name);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
   const items = breaking ?? data?.breaking ?? [];
 
   return (
