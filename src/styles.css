@@ -4,6 +4,53 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --font-sans: "IBM Plex Sans Arabic", "Tajawal", system-ui, sans-serif;
+  --font-display: "Cairo", "IBM Plex Sans Arabic", sans-serif;
+}
+
+@utility ticker-track {
+  animation: shamsan-ticker 40s linear infinite;
+}
+
+@keyframes shamsan-ticker {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+@utility article-body {
+  line-height: 2;
+  font-size: 1.0625rem;
+  & p {
+    margin-bottom: 1.25rem;
+  }
+  & h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 2rem 0 0.75rem;
+  }
+  & a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  & blockquote {
+    border-inline-start: 3px solid var(--accent);
+    padding-inline-start: 1rem;
+    color: var(--muted-foreground);
+    font-style: normal;
+    margin: 1.5rem 0;
+  }
+  & img {
+    border-radius: var(--radius);
+    margin: 1.5rem 0;
+  }
+}
+
 /*
  * Design system definition.
  *
@@ -59,42 +106,50 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-accent-strong: var(--accent-strong);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --radius: 0.375rem;
+  --background: oklch(0.99 0.002 250);
+  --foreground: oklch(0.19 0.025 255);
+  --surface: oklch(0.965 0.004 250);
+  --ink: oklch(0.19 0.03 255);
+  --ink-foreground: oklch(0.98 0.003 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: oklch(0.19 0.025 255);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.19 0.025 255);
+  --primary: oklch(0.24 0.035 255);
+  --primary-foreground: oklch(0.98 0.003 250);
+  --secondary: oklch(0.955 0.005 250);
+  --secondary-foreground: oklch(0.24 0.035 255);
+  --muted: oklch(0.955 0.005 250);
+  --muted-foreground: oklch(0.5 0.02 255);
+  --accent: oklch(0.52 0.2 22);
+  --accent-foreground: oklch(0.99 0.005 20);
+  --accent-strong: oklch(0.44 0.19 22);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.9 0.008 255);
+  --input: oklch(0.9 0.008 255);
+  --ring: oklch(0.52 0.2 22);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --sidebar: oklch(0.21 0.03 255);
+  --sidebar-foreground: oklch(0.95 0.005 250);
+  --sidebar-primary: oklch(0.52 0.2 22);
+  --sidebar-primary-foreground: oklch(0.99 0.005 20);
+  --sidebar-accent: oklch(0.27 0.035 255);
+  --sidebar-accent-foreground: oklch(0.97 0.005 250);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.52 0.2 22);
 }
 
 .dark {
@@ -140,5 +195,14 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: 0;
   }
 }
