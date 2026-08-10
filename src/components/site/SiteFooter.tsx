@@ -85,11 +85,6 @@ export function SiteFooter({ categories = [] }: { categories?: CategoryRow[] }) 
                 موجز RSS
               </Link>
             </li>
-            <li>
-              <Link to="/auth" className="transition-colors hover:text-accent">
-                دخول المحررين
-              </Link>
-            </li>
           </ul>
         </div>
       </div>
