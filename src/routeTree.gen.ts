@@ -24,7 +24,11 @@ import { Route as AuthenticatedAdminAuthorsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminBreakingRouteImport } from './routes/_authenticated/admin.breaking'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminEditorsRouteImport } from './routes/_authenticated/admin.editors'
+import { Route as AuthenticatedAdminImportRouteImport } from './routes/_authenticated/admin.import'
+import { Route as AuthenticatedAdminMaintenanceRouteImport } from './routes/_authenticated/admin.maintenance'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
+import { Route as AuthenticatedAdminProfileRouteImport } from './routes/_authenticated/admin.profile'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminTagsRouteImport } from './routes/_authenticated/admin.tags'
 import { Route as ApiPublicRssDotxmlRouteImport } from './routes/api/public/rss[.]xml'
 import { Route as YearMonthDaySlugRouteImport } from './routes/$year.$month.$day.$slug'
@@ -109,11 +113,35 @@ const AuthenticatedAdminEditorsRoute =
     path: '/editors',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminImportRoute =
+  AuthenticatedAdminImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminMaintenanceRoute =
+  AuthenticatedAdminMaintenanceRouteImport.update({
+    id: '/maintenance',
+    path: '/maintenance',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
   id: '/media',
   path: '/media',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminProfileRoute =
+  AuthenticatedAdminProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminTagsRoute = AuthenticatedAdminTagsRouteImport.update({
   id: '/tags',
   path: '/tags',
@@ -156,7 +184,11 @@ export interface FileRoutesByFullPath {
   '/admin/breaking': typeof AuthenticatedAdminBreakingRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/editors': typeof AuthenticatedAdminEditorsRoute
+  '/admin/import': typeof AuthenticatedAdminImportRoute
+  '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -177,7 +209,11 @@ export interface FileRoutesByTo {
   '/admin/breaking': typeof AuthenticatedAdminBreakingRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/editors': typeof AuthenticatedAdminEditorsRoute
+  '/admin/import': typeof AuthenticatedAdminImportRoute
+  '/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -201,7 +237,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/breaking': typeof AuthenticatedAdminBreakingRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/editors': typeof AuthenticatedAdminEditorsRoute
+  '/_authenticated/admin/import': typeof AuthenticatedAdminImportRoute
+  '/_authenticated/admin/maintenance': typeof AuthenticatedAdminMaintenanceRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/_authenticated/admin/profile': typeof AuthenticatedAdminProfileRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -225,7 +265,11 @@ export interface FileRouteTypes {
     | '/admin/breaking'
     | '/admin/categories'
     | '/admin/editors'
+    | '/admin/import'
+    | '/admin/maintenance'
     | '/admin/media'
+    | '/admin/profile'
+    | '/admin/settings'
     | '/admin/tags'
     | '/api/public/rss.xml'
     | '/admin/'
@@ -246,7 +290,11 @@ export interface FileRouteTypes {
     | '/admin/breaking'
     | '/admin/categories'
     | '/admin/editors'
+    | '/admin/import'
+    | '/admin/maintenance'
     | '/admin/media'
+    | '/admin/profile'
+    | '/admin/settings'
     | '/admin/tags'
     | '/api/public/rss.xml'
     | '/admin'
@@ -269,7 +317,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/breaking'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/editors'
+    | '/_authenticated/admin/import'
+    | '/_authenticated/admin/maintenance'
     | '/_authenticated/admin/media'
+    | '/_authenticated/admin/profile'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/tags'
     | '/api/public/rss.xml'
     | '/_authenticated/admin/'
@@ -398,11 +450,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEditorsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/import': {
+      id: '/_authenticated/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AuthenticatedAdminImportRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/maintenance': {
+      id: '/_authenticated/admin/maintenance'
+      path: '/maintenance'
+      fullPath: '/admin/maintenance'
+      preLoaderRoute: typeof AuthenticatedAdminMaintenanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/media': {
       id: '/_authenticated/admin/media'
       path: '/media'
       fullPath: '/admin/media'
       preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/profile': {
+      id: '/_authenticated/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AuthenticatedAdminProfileRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/tags': {
@@ -449,7 +529,11 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBreakingRoute: typeof AuthenticatedAdminBreakingRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminEditorsRoute: typeof AuthenticatedAdminEditorsRoute
+  AuthenticatedAdminImportRoute: typeof AuthenticatedAdminImportRoute
+  AuthenticatedAdminMaintenanceRoute: typeof AuthenticatedAdminMaintenanceRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
+  AuthenticatedAdminProfileRoute: typeof AuthenticatedAdminProfileRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminTagsRoute: typeof AuthenticatedAdminTagsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminPostsIdRoute: typeof AuthenticatedAdminPostsIdRoute
@@ -462,7 +546,11 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBreakingRoute: AuthenticatedAdminBreakingRoute,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
   AuthenticatedAdminEditorsRoute: AuthenticatedAdminEditorsRoute,
+  AuthenticatedAdminImportRoute: AuthenticatedAdminImportRoute,
+  AuthenticatedAdminMaintenanceRoute: AuthenticatedAdminMaintenanceRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
+  AuthenticatedAdminProfileRoute: AuthenticatedAdminProfileRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminTagsRoute: AuthenticatedAdminTagsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminPostsIdRoute: AuthenticatedAdminPostsIdRoute,
@@ -498,3 +586,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
