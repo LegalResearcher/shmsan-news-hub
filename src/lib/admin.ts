@@ -61,13 +61,16 @@ export async function uploadMedia(file: File, userId?: string) {
   const path = `${Date.now()}-${file.name.replace(/[^\w.\-]/g, "_")}`;
   const { error } = await supabase.storage.from("media").upload(path, file, { upsert: false });
   if (error) throw error;
-  const { data } = supabase.storage.from("media").getPublicUrl(path);
+  const { data, error: signError } = await supabase.storage
+    .from("media")
+    .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+  if (signError || !data) throw signError ?? new Error("تعذر إنشاء رابط الملف");
   await supabase.from("media").insert({
-    url: data.publicUrl,
+    url: data.signedUrl,
     file_name: file.name,
     mime_type: file.type,
     size_bytes: file.size,
     uploaded_by: userId ?? null,
   });
-  return data.publicUrl;
+  return data.signedUrl;
 }
