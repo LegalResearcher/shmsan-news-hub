@@ -41,12 +41,14 @@ export const Route = createFileRoute("/")({
 // ترتيب أقسام الرئيسية بعد "أحدث الأخبار"
 const HOME_SECTION_ORDER = ["أخبار وتقارير", "شؤون دولية", "آراء واتجاهات", "منوعات", "رياضة"];
 
+// عدد الأخبار في صفحة قائمة "أحدث الأخبار"
+const LATEST_NEWS_PER_PAGE = 30;
+
 function LatestNewsList({ posts }: { posts: PostSummary[] }) {
   const [page, setPage] = useState(0);
-  const perPage = 30;
-  const items = posts.slice(0, perPage * 2); // أحدث 60 خبر مقسّمة على صفحتين (30 لكل صفحة)
-  const totalPages = Math.max(1, Math.ceil(items.length / perPage));
-  const pageItems = items.slice(page * perPage, page * perPage + perPage);
+  const perPage = LATEST_NEWS_PER_PAGE;
+  const totalPages = Math.max(1, Math.ceil(posts.length / perPage));
+  const pageItems = posts.slice(page * perPage, page * perPage + perPage);
 
   return (
     <section>
@@ -90,7 +92,7 @@ function LatestNewsList({ posts }: { posts: PostSummary[] }) {
 
 function HomePage() {
   const loaderData = Route.useLoaderData();
-  const { posts, breaking, ads, mostRead } = loaderData;
+  const { posts, breaking, ads, mostRead, latestNews } = loaderData;
   const categories = loaderData.categories as unknown as CategoryRow[];
   const all = posts as unknown as PostSummary[];
   const featured = all.filter((p) => p.is_featured).slice(0, 5);
@@ -106,7 +108,7 @@ function HomePage() {
           <div className="min-w-0 space-y-10">
             <HeroSlider posts={hero} />
 
-            <LatestNewsList posts={all} />
+            <LatestNewsList posts={latestNews as unknown as PostSummary[]} />
 
             <AdSlot placement="home-inline" ads={ads} className="h-24" />
 
