@@ -43,8 +43,8 @@ const HOME_SECTION_ORDER = ["أخبار وتقارير", "شؤون دولية", 
 
 function LatestNewsList({ posts }: { posts: PostSummary[] }) {
   const [page, setPage] = useState(0);
-  const perPage = 20;
-  const items = posts.slice(0, 20 * 3); // أحدث 60 خبر مقسّمة على 3 صفحات (20 لكل صفحة)
+  const perPage = 30;
+  const items = posts.slice(0, perPage * 2); // أحدث 60 خبر مقسّمة على صفحتين (30 لكل صفحة)
   const totalPages = Math.max(1, Math.ceil(items.length / perPage));
   const pageItems = items.slice(page * perPage, page * perPage + perPage);
 
