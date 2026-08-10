@@ -65,7 +65,13 @@ function ArticlePage() {
     function handleCopy(e: ClipboardEvent) {
       const selection = window.getSelection()?.toString();
       if (!selection) return;
-      const attribution = `\n\nالمصدر: شمسان نيوز - ${window.location.href}`;
+      let readableUrl = window.location.href;
+      try {
+        readableUrl = decodeURI(window.location.href);
+      } catch {
+        // إبقاء الرابط كما هو إذا تعذّر فك ترميزه
+      }
+      const attribution = `\n\nالمصدر: شمسان نيوز - ${readableUrl}`;
       e.clipboardData?.setData("text/plain", `${selection}${attribution}`);
       e.preventDefault();
     }
