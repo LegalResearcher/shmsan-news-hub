@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { getHomeData } from "@/lib/news.functions";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -8,7 +9,7 @@ import { MostRead } from "@/components/site/MostRead";
 import { MarketWidget } from "@/components/site/MarketWidget";
 import { AdSlot } from "@/components/site/AdSlot";
 import { Link } from "@tanstack/react-router";
-import { articlePath, formatArabicDate, type CategoryRow, type PostSummary } from "@/lib/news.types";
+import { articlePath, type CategoryRow, type PostSummary } from "@/lib/news.types";
 
 export const Route = createFileRoute("/")({
   loader: () => getHomeData(),
@@ -37,6 +38,56 @@ export const Route = createFileRoute("/")({
   ),
 });
 
+// ترتيب أقسام الرئيسية بعد "أحدث الأخبار"
+const HOME_SECTION_ORDER = ["أخبار وتقارير", "شؤون دولية", "آراء واتجاهات", "منوعات", "رياضة"];
+
+function LatestNewsList({ posts }: { posts: PostSummary[] }) {
+  const [page, setPage] = useState(0);
+  const perPage = 20;
+  const items = posts.slice(0, 20 * 3); // أحدث 60 خبر مقسّمة على 3 صفحات (20 لكل صفحة)
+  const totalPages = Math.max(1, Math.ceil(items.length / perPage));
+  const pageItems = items.slice(page * perPage, page * perPage + perPage);
+
+  return (
+    <section>
+      <SectionHeading title="أحدث الأخبار" />
+      <ul className="space-y-3">
+        {pageItems.map((post) => (
+          <li key={post.id}>
+            <Link
+              to="/$year/$month/$day/$slug"
+              params={articlePath(post)}
+              className="block rounded border border-border bg-surface px-4 py-3 font-bold leading-7 transition-colors hover:border-accent hover:text-accent"
+            >
+              {post.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {totalPages > 1 ? (
+        <div className="mt-4 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+            disabled={page >= totalPages - 1}
+            className="rounded border border-border px-4 py-2 text-sm font-bold transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            التالي
+          </button>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(p - 1, 0))}
+            disabled={page <= 0}
+            className="rounded border border-border px-4 py-2 text-sm font-bold transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            السابق
+          </button>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 function HomePage() {
   const loaderData = Route.useLoaderData();
   const { posts, breaking, ads, mostRead } = loaderData;
@@ -44,11 +95,9 @@ function HomePage() {
   const all = posts as unknown as PostSummary[];
   const featured = all.filter((p) => p.is_featured).slice(0, 5);
   const hero = featured.length ? featured : all.slice(0, 5);
-  const opinions = all.filter((p) => p.is_opinion).slice(0, 4);
-  const mainCategories = categories.filter((c) => !c.parent_id);
-
-  const heroIds = new Set(hero.map((p) => p.id));
-  const latest = all.filter((p) => !heroIds.has(p.id)).slice(0, 4);
+  const mainCategories = categories
+    .filter((c) => !c.parent_id && HOME_SECTION_ORDER.includes(c.name))
+    .sort((a, b) => HOME_SECTION_ORDER.indexOf(a.name) - HOME_SECTION_ORDER.indexOf(b.name));
 
   return (
     <SiteShell categories={categories} breaking={breaking}>
@@ -57,14 +106,7 @@ function HomePage() {
           <div className="min-w-0 space-y-10">
             <HeroSlider posts={hero} />
 
-            <section>
-              <SectionHeading title="أحدث الأخبار" />
-              <div className="grid gap-6 sm:grid-cols-2">
-                {latest.map((post) => (
-                  <NewsCard key={post.id} post={post} />
-                ))}
-              </div>
-            </section>
+            <LatestNewsList posts={all} />
 
             <AdSlot placement="home-inline" ads={ads} className="h-24" />
 
@@ -84,45 +126,6 @@ function HomePage() {
                 </section>
               );
             })}
-
-            {opinions.length ? (
-              <section>
-                <SectionHeading title="مقالات وآراء" slug="opinion" />
-                <div className="grid gap-5 sm:grid-cols-2">
-                  {opinions.map((post) => (
-                    <Link
-                      key={post.id}
-                      to="/$year/$month/$day/$slug"
-                      params={articlePath(post)}
-                      className="group flex gap-4 rounded border border-border bg-card p-4"
-                    >
-                      <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-surface font-display font-bold text-muted-foreground">
-                        {post.author?.avatar_url ? (
-                          <img
-                            src={post.author.avatar_url}
-                            alt={post.author.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          (post.author?.name ?? "ش").slice(0, 1)
-                        )}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-xs font-bold text-accent">
-                          {post.author?.name ?? "هيئة التحرير"}
-                        </span>
-                        <span className="mt-1 block font-bold leading-7 transition-colors group-hover:text-accent">
-                          {post.title}
-                        </span>
-                        <span className="mt-1 block text-xs text-muted-foreground">
-                          {formatArabicDate(post.published_at)}
-                        </span>
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            ) : null}
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-32 lg:self-start">
