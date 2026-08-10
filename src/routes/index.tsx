@@ -42,7 +42,7 @@ export const Route = createFileRoute("/")({
 const HOME_SECTION_ORDER = ["أخبار وتقارير", "شؤون دولية", "آراء واتجاهات", "منوعات", "رياضة"];
 
 // عدد الأخبار في صفحة قائمة "أحدث الأخبار"
-const LATEST_NEWS_PER_PAGE = 30;
+const LATEST_NEWS_PER_PAGE = 20;
 
 function LatestNewsList({ posts }: { posts: PostSummary[] }) {
   const [page, setPage] = useState(0);
