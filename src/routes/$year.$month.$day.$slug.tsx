@@ -109,7 +109,6 @@ function ArticlePage() {
                 {article.views.toLocaleString("ar")} مشاهدة
               </span>
               */}
-              <ShareButtons title={article.title} />
             </div>
 
             {article.cover_image ? (
@@ -131,6 +130,10 @@ function ArticlePage() {
               className="article-body mt-6"
               dangerouslySetInnerHTML={{ __html: article.content ?? "" }}
             />
+
+            <div className="mt-8 flex justify-center border-y border-border py-5">
+              <ShareButtons title={article.title} />
+            </div>
 
             <AdSlot placement="article-bottom" className="mt-10 h-24" />
 
