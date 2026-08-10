@@ -14,6 +14,20 @@ interface Props {
   showTicker?: boolean;
 }
 
+// إخفاء مؤقت لهذه الأقسام من كل قوائم الموقع (Header + Footer)
+// لإعادة الإظهار: احذفي الاسم من هذه القائمة
+const TEMP_HIDDEN_CATEGORIES = [
+  "أخبار عدن",
+  "أخبار محلية",
+  "مقالات وآراء",
+  "شمسان اليوم",
+  "تاريخ وتراث",
+  "تحت المجهر",
+  "مختارات",
+  "إضاءات عسكرية",
+  "فيديو",
+];
+
 export function SiteShell({ children, categories, breaking, showTicker = true }: Props) {
   const fetchNav = useServerFn(getNavigation);
   const { data } = useQuery({
@@ -23,7 +37,9 @@ export function SiteShell({ children, categories, breaking, showTicker = true }:
     staleTime: 5 * 60 * 1000,
   });
 
-  const cats = categories ?? data?.categories ?? [];
+  const cats = (categories ?? data?.categories ?? []).filter(
+    (c) => !TEMP_HIDDEN_CATEGORIES.includes(c.name)
+  );
   const items = breaking ?? data?.breaking ?? [];
 
   return (
