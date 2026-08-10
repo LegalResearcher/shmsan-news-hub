@@ -1,0 +1,139 @@
+import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { Eye, Share2 } from "lucide-react";
+import { getPostBySlug } from "@/lib/news.functions";
+import { SiteShell } from "@/components/site/SiteShell";
+import { NewsCard } from "@/components/site/NewsCard";
+import { SectionHeading } from "@/components/site/SectionHeading";
+import { MostRead } from "@/components/site/MostRead";
+import { AdSlot } from "@/components/site/AdSlot";
+import { formatArabicDateTime, type PostFull, type PostSummary } from "@/lib/news.types";
+
+export const Route = createFileRoute("/$year/$month/$day/$slug")({
+  loader: async ({ params }) => {
+    const data = await getPostBySlug({ data: { slug: params.slug } });
+    if (!data.post) throw notFound();
+    return data;
+  },
+  head: ({ loaderData }) => {
+    const post = loaderData?.post as PostFull | undefined;
+    if (!post) {
+      return { meta: [{ title: "الخبر غير متوفر | شمسان نيوز" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = post.seo_title ?? `${post.title} | شمسان نيوز`;
+    const description = post.seo_description ?? post.excerpt ?? "تقرير من شمسان نيوز.";
+    const meta = [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ];
+    if (post.cover_image?.startsWith("https://")) {
+      meta.push(
+        { property: "og:image", content: post.cover_image },
+        { name: "twitter:image", content: post.cover_image },
+      );
+    }
+    return { meta };
+  },
+  component: ArticlePage,
+  notFoundComponent: () => (
+    <SiteShell>
+      <p className="p-16 text-center text-muted-foreground">هذا الخبر غير متوفر أو تم حذفه.</p>
+    </SiteShell>
+  ),
+  errorComponent: () => (
+    <SiteShell>
+      <p className="p-16 text-center text-muted-foreground">تعذر تحميل الخبر، حاول التحديث.</p>
+    </SiteShell>
+  ),
+});
+
+function ArticlePage() {
+  const { post, related } = Route.useLoaderData();
+  const article = post as unknown as PostFull;
+  const others = related as unknown as PostSummary[];
+
+  return (
+    <SiteShell>
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <article className="min-w-0">
+            <nav className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
+              <Link to="/" className="hover:text-accent">
+                الرئيسية
+              </Link>
+              {article.category ? (
+                <>
+                  <span>/</span>
+                  <Link
+                    to="/category/$slug"
+                    params={{ slug: article.category.slug }}
+                    className="font-semibold text-accent"
+                  >
+                    {article.category.name}
+                  </Link>
+                </>
+              ) : null}
+            </nav>
+
+            <h1 className="text-2xl font-black leading-10 sm:text-3xl sm:leading-[3rem]">
+              {article.title}
+            </h1>
+
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-border py-3 text-xs text-muted-foreground">
+              <span className="font-bold text-foreground">{article.author?.name ?? "هيئة التحرير"}</span>
+              <span>{formatArabicDateTime(article.published_at)}</span>
+              <span className="flex items-center gap-1">
+                <Eye className="h-3.5 w-3.5" />
+                {article.views.toLocaleString("ar")} مشاهدة
+              </span>
+              <span className="flex items-center gap-1">
+                <Share2 className="h-3.5 w-3.5" />
+                مشاركة
+              </span>
+            </div>
+
+            {article.cover_image ? (
+              <img
+                src={article.cover_image}
+                alt={article.title}
+                className="mt-6 aspect-[16/9] w-full rounded object-cover"
+              />
+            ) : null}
+
+            {article.excerpt ? (
+              <p className="mt-6 border-s-4 border-accent ps-4 text-base font-semibold leading-8">
+                {article.excerpt}
+              </p>
+            ) : null}
+
+            <div
+              className="article-body mt-6"
+              dangerouslySetInnerHTML={{ __html: article.content ?? "" }}
+            />
+
+            <AdSlot placement="article-bottom" className="mt-10 h-24" />
+
+            {others.length ? (
+              <section className="mt-12">
+                <SectionHeading title="أخبار ذات صلة" />
+                <div className="grid gap-6 sm:grid-cols-3">
+                  {others.slice(0, 3).map((item) => (
+                    <NewsCard key={item.id} post={item} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+          </article>
+
+          <aside className="space-y-6">
+            <MostRead posts={others} />
+            <AdSlot placement="article-sidebar" className="h-64" />
+          </aside>
+        </div>
+      </div>
+    </SiteShell>
+  );
+}
