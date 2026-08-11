@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Facebook, Twitter, MessageCircle, Send, Copy, Check } from "lucide-react";
+import { Facebook, Twitter, MessageCircle, Send, Copy, Check, Share2 } from "lucide-react";
 
 const TELEGRAM_CHANNEL = "https://t.me/shmsannews";
 const FOLLOW_LINE = `للمزيد من الأخبار العاجلة تابعونا على تليجرام: ${TELEGRAM_CHANNEL}`;
@@ -82,38 +82,62 @@ export function ShareButtons({ title, postId }: ShareButtonsProps) {
   }
 
   const buttons = [
-    { label: "فيسبوك", icon: Facebook, onClick: shareFacebook, className: "hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2]" },
-    { label: "إكس", icon: Twitter, onClick: shareTwitter, className: "hover:bg-black hover:text-white hover:border-black" },
-    { label: "واتساب", icon: MessageCircle, onClick: shareWhatsApp, className: "hover:bg-[#25D366] hover:text-white hover:border-[#25D366]" },
-    { label: "تليجرام", icon: Send, onClick: shareTelegram, className: "hover:bg-[#26A5E4] hover:text-white hover:border-[#26A5E4]" },
+    {
+      label: "نسخ الرابط",
+      icon: copied ? Check : Copy,
+      onClick: copyLink,
+      circleClass: copied ? "bg-green-600 text-white" : "bg-muted text-foreground",
+    },
+    {
+      label: "تليجرام",
+      icon: Send,
+      onClick: shareTelegram,
+      circleClass: "bg-[#26A5E4] text-white",
+    },
+    {
+      label: "واتساب",
+      icon: MessageCircle,
+      onClick: shareWhatsApp,
+      circleClass: "bg-[#25D366] text-white",
+    },
+    {
+      label: "تويتر",
+      icon: Twitter,
+      onClick: shareTwitter,
+      circleClass: "bg-black text-white",
+    },
+    {
+      label: "فيسبوك",
+      icon: Facebook,
+      onClick: shareFacebook,
+      circleClass: "bg-[#1877F2] text-white",
+    },
   ];
 
   return (
-    <span className="flex flex-wrap items-center gap-2">
-      <span className="text-xs font-bold text-muted-foreground">مشاركة:</span>
-      {buttons.map((b) => (
-        <button
-          key={b.label}
-          type="button"
-          onClick={b.onClick}
-          aria-label={`مشاركة عبر ${b.label}`}
-          className={`grid h-8 w-8 place-items-center rounded-full border border-border text-muted-foreground transition-colors ${b.className}`}
-        >
-          <b.icon className="h-4 w-4" />
-        </button>
-      ))}
-      <button
-        type="button"
-        onClick={copyLink}
-        aria-label={copied ? "تم نسخ الرابط" : "نسخ الرابط"}
-        className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${
-          copied
-            ? "border-green-600 bg-green-600 text-white"
-            : "border-border text-muted-foreground hover:bg-primary hover:text-white hover:border-primary"
-        }`}
-      >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-      </button>
-    </span>
+    <div className="w-full">
+      <div className="flex items-center justify-center gap-2 pb-4">
+        <span className="text-base font-bold text-foreground">شارك الخبر</span>
+        <Share2 className="h-4 w-4 text-accent" />
+      </div>
+      <div className="flex flex-wrap items-start justify-center gap-6 pt-5">
+        {buttons.map((b) => (
+          <button
+            key={b.label}
+            type="button"
+            onClick={b.onClick}
+            aria-label={b.label === "نسخ الرابط" && copied ? "تم نسخ الرابط" : b.label}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <span
+              className={`grid h-12 w-12 place-items-center rounded-full transition-colors ${b.circleClass}`}
+            >
+              <b.icon className="h-5 w-5" />
+            </span>
+            <span className="text-xs font-semibold text-muted-foreground">{b.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
