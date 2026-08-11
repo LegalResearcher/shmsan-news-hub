@@ -138,7 +138,7 @@ function ArticlePage() {
             />
 
             <div className="mt-8 flex justify-center border-y border-border py-5">
-              <ShareButtons title={article.title} />
+              <ShareButtons title={article.title} postId={article.id} />
             </div>
 
             <AdSlot placement="article-bottom" className="mt-10 h-24" />
