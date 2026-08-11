@@ -110,6 +110,8 @@ function HomePage() {
 
             <LatestNewsList posts={latestNews as unknown as PostSummary[]} />
 
+            <MarketWidget />
+
             <AdSlot placement="home-inline" ads={ads} className="h-24" />
 
             {mainCategories.map((cat) => {
@@ -132,7 +134,6 @@ function HomePage() {
 
           <aside className="space-y-6 lg:sticky lg:top-32 lg:self-start">
             <MostRead posts={mostRead as unknown as PostSummary[]} />
-            <MarketWidget />
             <AdSlot placement="sidebar" ads={ads} className="h-64" />
           </aside>
         </div>
