@@ -1,4 +1,5 @@
-import { Facebook, Twitter, MessageCircle, Send } from "lucide-react";
+import { useState } from "react";
+import { Facebook, Twitter, MessageCircle, Send, Copy, Check } from "lucide-react";
 
 const TELEGRAM_CHANNEL = "https://t.me/shmsannews";
 const FOLLOW_LINE = `للمزيد من الأخبار العاجلة تابعونا على تليجرام: ${TELEGRAM_CHANNEL}`;
@@ -13,6 +14,13 @@ function getShareUrl() {
   }
 }
 
+// تويتر/إكس لا يتعرف على الروابط العربية غير المرمّزة كرابط قابل للنقر (تظهر كنص عادي)
+// لذلك نستخدم له الرابط بصيغته الأصلية المرمّزة (ASCII) دائماً
+function getShareUrlEncoded() {
+  if (typeof window === "undefined") return "";
+  return window.location.href;
+}
+
 function buildShareText(title: string, url: string) {
   return `${title}\n\n${url}\n\n${FOLLOW_LINE}`;
 }
@@ -22,8 +30,29 @@ interface ShareButtonsProps {
 }
 
 export function ShareButtons({ title }: ShareButtonsProps) {
+  const [copied, setCopied] = useState(false);
+
   function openShareWindow(url: string) {
     window.open(url, "_blank", "noopener,noreferrer,width=600,height=500");
+  }
+
+  async function copyLink() {
+    const url = getShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // خطة بديلة في حال فشل الـ Clipboard API
+      const textarea = document.createElement("textarea");
+      textarea.value = url;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   function shareFacebook() {
@@ -32,7 +61,7 @@ export function ShareButtons({ title }: ShareButtonsProps) {
   }
 
   function shareTwitter() {
-    const url = getShareUrl();
+    const url = getShareUrlEncoded();
     const text = buildShareText(title, url);
     // الرابط مضمّن داخل النص لضبط الترتيب (العنوان ثم الرابط ثم عبارة المتابعة)
     openShareWindow(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`);
@@ -72,6 +101,18 @@ export function ShareButtons({ title }: ShareButtonsProps) {
           <b.icon className="h-4 w-4" />
         </button>
       ))}
+      <button
+        type="button"
+        onClick={copyLink}
+        aria-label={copied ? "تم نسخ الرابط" : "نسخ الرابط"}
+        className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${
+          copied
+            ? "border-green-600 bg-green-600 text-white"
+            : "border-border text-muted-foreground hover:bg-primary hover:text-white hover:border-primary"
+        }`}
+      >
+        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+      </button>
     </span>
   );
 }
