@@ -1,15 +1,19 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { z } from "zod";
 import { getCategoryData } from "@/lib/news.functions";
 import { SiteShell } from "@/components/site/SiteShell";
 import { NewsCard } from "@/components/site/NewsCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { MostRead } from "@/components/site/MostRead";
 import { AdSlot } from "@/components/site/AdSlot";
+import { CategoryPagination } from "@/components/site/CategoryPagination";
 import type { CategoryRow, PostSummary } from "@/lib/news.types";
 
 export const Route = createFileRoute("/category/$slug")({
-  loader: async ({ params }) => {
-    const data = await getCategoryData({ data: { slug: params.slug } });
+  validateSearch: z.object({ page: z.number().int().min(1).catch(1) }),
+  loaderDeps: ({ search }) => ({ page: search.page }),
+  loader: async ({ params, deps }) => {
+    const data = await getCategoryData({ data: { slug: params.slug, page: deps.page } });
     if (!data.category) throw notFound();
     return data;
   },
@@ -45,7 +49,7 @@ export const Route = createFileRoute("/category/$slug")({
 });
 
 function CategoryPage() {
-  const { category, posts, children } = Route.useLoaderData();
+  const { category, posts, children, page, totalPages } = Route.useLoaderData();
   const subs = children as unknown as CategoryRow[];
   const items = posts as unknown as PostSummary[];
 
@@ -64,11 +68,14 @@ function CategoryPage() {
               </p>
             ) : null}
             {items.length ? (
-              <div className="space-y-6">
-                {items.map((post) => (
-                  <NewsCard key={post.id} post={post} variant="wide" />
-                ))}
-              </div>
+              <>
+                <div className="space-y-6">
+                  {items.map((post) => (
+                    <NewsCard key={post.id} post={post} variant="wide" />
+                  ))}
+                </div>
+                <CategoryPagination slug={category!.slug} page={page} totalPages={totalPages} />
+              </>
             ) : (
               <p className="py-12 text-center text-muted-foreground">لا توجد أخبار في هذا القسم بعد.</p>
             )}
