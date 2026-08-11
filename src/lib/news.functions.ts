@@ -80,8 +80,13 @@ export const getPostBySlug = createServerFn({ method: "GET" })
     return { post, related: related ?? [] };
   });
 
+// عدد الأخبار في كل صفحة من صفحات القسم
+export const CATEGORY_PAGE_SIZE = 10;
+
 export const getCategoryData = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ slug: z.string().min(1) }).parse(d))
+  .inputValidator((d) =>
+    z.object({ slug: z.string().min(1), page: z.number().int().min(1).catch(1) }).parse(d),
+  )
   .handler(async ({ data }) => {
     const db = publicClient();
     const { data: category } = await db
@@ -89,20 +94,25 @@ export const getCategoryData = createServerFn({ method: "GET" })
       .select("id,name,slug,description,sort_order,parent_id")
       .eq("slug", data.slug)
       .maybeSingle();
-    if (!category) return { category: null, posts: [], children: [] };
+    if (!category) return { category: null, posts: [], children: [], page: 1, totalPages: 1, total: 0 };
     const { data: children } = await db
       .from("categories")
       .select("id,name,slug,description,sort_order,parent_id")
       .eq("parent_id", category.id);
     const ids = [category.id, ...(children ?? []).map((c) => c.id)];
-    const { data: posts } = await db
+    const page = data.page;
+    const from = (page - 1) * CATEGORY_PAGE_SIZE;
+    const to = from + CATEGORY_PAGE_SIZE - 1;
+    const { data: posts, count } = await db
       .from("posts")
-      .select(POST_FIELDS)
+      .select(POST_FIELDS, { count: "exact" })
       .eq("status", "published")
       .in("category_id", ids)
       .order("published_at", { ascending: false })
-      .limit(40);
-    return { category, posts: posts ?? [], children: children ?? [] };
+      .range(from, to);
+    const total = count ?? 0;
+    const totalPages = Math.max(1, Math.ceil(total / CATEGORY_PAGE_SIZE));
+    return { category, posts: posts ?? [], children: children ?? [], page, totalPages, total };
   });
 
 export const getMarketRates = createServerFn({ method: "GET" }).handler(async () => {
