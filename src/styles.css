@@ -25,6 +25,8 @@
 @utility article-body {
   line-height: 2;
   font-size: 1.0625rem;
+  /* يجعل الأسطر الجديدة (\n) الموجودة بالنص الخام تظهر كفاصل سطر فعلي حتى لو المحتوى غير مقسّم بتاق <p> */
+  white-space: pre-wrap;
   & p {
     margin-bottom: 1.25rem;
   }
