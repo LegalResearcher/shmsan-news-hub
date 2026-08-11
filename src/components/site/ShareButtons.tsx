@@ -14,23 +14,24 @@ function getShareUrl() {
   }
 }
 
-// تويتر/إكس لا يتعرف على الروابط العربية غير المرمّزة كرابط قابل للنقر (تظهر كنص عادي)
-// لذلك نستخدم له الرابط بصيغته الأصلية المرمّزة (ASCII) دائماً
-function getShareUrlEncoded() {
-  if (typeof window === "undefined") return "";
-  return window.location.href;
-}
-
 function buildShareText(title: string, url: string) {
   return `${title}\n\n${url}\n\n${FOLLOW_LINE}`;
 }
 
 interface ShareButtonsProps {
   title: string;
+  postId: string;
 }
 
-export function ShareButtons({ title }: ShareButtonsProps) {
+export function ShareButtons({ title, postId }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+
+  // رابط مشاركة قصير وثابت (ASCII بالكامل: /share/<id>) - يعطي بطاقة معاينة صحيحة
+  // وشكل رابط نظيف على تويتر بدل الرابط الطويل بالتاريخ والعنوان العربي
+  function getShortShareUrl() {
+    if (typeof window === "undefined") return "";
+    return `${window.location.origin}/share/${postId}`;
+  }
 
   function openShareWindow(url: string) {
     window.open(url, "_blank", "noopener,noreferrer,width=600,height=500");
@@ -61,7 +62,7 @@ export function ShareButtons({ title }: ShareButtonsProps) {
   }
 
   function shareTwitter() {
-    const url = getShareUrlEncoded();
+    const url = getShortShareUrl();
     const text = buildShareText(title, url);
     // الرابط مضمّن داخل النص لضبط الترتيب (العنوان ثم الرابط ثم عبارة المتابعة)
     openShareWindow(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`);
