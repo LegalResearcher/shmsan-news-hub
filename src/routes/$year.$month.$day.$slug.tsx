@@ -137,7 +137,7 @@ function ArticlePage() {
               dangerouslySetInnerHTML={{ __html: article.content ?? "" }}
             />
 
-            <div className="mt-8 flex justify-center border-y border-border py-5">
+            <div className="mt-8 border-y border-border py-5">
               <ShareButtons title={article.title} postId={article.id} />
             </div>
 
