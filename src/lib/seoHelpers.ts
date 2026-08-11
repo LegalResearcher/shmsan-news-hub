@@ -1,8 +1,7 @@
 // Advanced SEO Helpers for Google Indexing Optimization — نفس منطق الجنوب فويس حرفياً
 import { getPostImageOrLogo } from "./defaultImages";
 
-// ⚠️ عدّل هذا إلى نطاق موقع شمسان نيوز الفعلي عند ربط الدومين
-export const SEO_SITE_URL = "https://shamsan-news.com";
+export const SEO_SITE_URL = "https://shmsannews.com";
 export const SEO_SITE_NAME = "شمسان نيوز";
 
 // الكلمات المفتاحية العربية التي يتم حذفها من الروابط لتحسين الـ SEO
