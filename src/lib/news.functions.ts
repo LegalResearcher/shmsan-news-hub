@@ -17,7 +17,7 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     .filter((c) => LATEST_NEWS_CATEGORY_NAMES.includes(c.name))
     .map((c) => c.id);
 
-  const [posts, breaking, ads, latestNews] = await Promise.all([
+  const [posts, breaking, ads, latestNews, marketRates] = await Promise.all([
     db
       .from("posts")
       .select(POST_FIELDS)
@@ -35,6 +35,11 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
           .order("published_at", { ascending: false })
           .limit(60)
       : Promise.resolve({ data: [] as unknown[] }),
+    db
+      .from("market_rates")
+      .select("city,kind,code,label,buy,sell,prev_sell,updated_at")
+      .order("kind")
+      .order("code"),
   ]);
   const mostRead = await db
     .from("posts")
@@ -49,6 +54,7 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async () =>
     ads: ads.data ?? [],
     mostRead: mostRead.data ?? [],
     latestNews: latestNews.data ?? [],
+    marketRates: marketRates.data ?? [],
   };
 });
 
@@ -98,6 +104,16 @@ export const getCategoryData = createServerFn({ method: "GET" })
       .limit(40);
     return { category, posts: posts ?? [], children: children ?? [] };
   });
+
+export const getMarketRates = createServerFn({ method: "GET" }).handler(async () => {
+  const db = publicClient();
+  const { data } = await db
+    .from("market_rates")
+    .select("city,kind,code,label,buy,sell,prev_sell,updated_at")
+    .order("kind")
+    .order("code");
+  return data ?? [];
+});
 
 export const getNavigation = createServerFn({ method: "GET" }).handler(async () => {
   const db = publicClient();
