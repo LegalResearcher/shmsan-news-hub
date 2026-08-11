@@ -6,7 +6,7 @@ import { HeroSlider } from "@/components/site/HeroSlider";
 import { NewsCard } from "@/components/site/NewsCard";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { MostRead } from "@/components/site/MostRead";
-import { MarketWidget } from "@/components/site/MarketWidget";
+import { MarketWidget, type MarketRateRow } from "@/components/site/MarketWidget";
 import { AdSlot } from "@/components/site/AdSlot";
 import { Link } from "@tanstack/react-router";
 import { articlePath, type CategoryRow, type PostSummary } from "@/lib/news.types";
@@ -92,7 +92,7 @@ function LatestNewsList({ posts }: { posts: PostSummary[] }) {
 
 function HomePage() {
   const loaderData = Route.useLoaderData();
-  const { posts, breaking, ads, mostRead, latestNews } = loaderData;
+  const { posts, breaking, ads, mostRead, latestNews, marketRates } = loaderData;
   const categories = loaderData.categories as unknown as CategoryRow[];
   const all = posts as unknown as PostSummary[];
   const featured = all.filter((p) => p.is_featured).slice(0, 5);
@@ -110,7 +110,7 @@ function HomePage() {
 
             <LatestNewsList posts={latestNews as unknown as PostSummary[]} />
 
-            <MarketWidget />
+            <MarketWidget rates={marketRates as unknown as MarketRateRow[]} />
 
             <AdSlot placement="home-inline" ads={ads} className="h-24" />
 
