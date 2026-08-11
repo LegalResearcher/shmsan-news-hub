@@ -1,35 +1,76 @@
 import { useState } from "react";
-import { TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { Minus, TrendingDown, TrendingUp, Clock } from "lucide-react";
 
 type City = "aden" | "sanaa";
 
-type Row = { code: string; label: string; value: string; trend: string };
+type CurrencyRow = { code: string; label: string; buy: string; sell: string };
+type GoldRow = { code: string; label: string; value: string; trend: string };
 
-const currencyRows: Record<City, Row[]> = {
+// أسعار صرف العملات (شراء/بيع) - مصدر: ye-rial.com بتاريخ اليوم
+const currencyRows: Record<City, CurrencyRow[]> = {
   aden: [
-    { code: "USD", label: "دولار أمريكي", value: "1,580", trend: "+0.5%" },
-    { code: "SAR", label: "ريال سعودي", value: "415", trend: "+0.3%" },
-    { code: "EUR", label: "يورو", value: "1,710", trend: "+0.4%" },
+    { code: "USD", label: "دولار أمريكي", buy: "1,554", sell: "1,562" },
+    { code: "SAR", label: "ريال سعودي", buy: "410", sell: "413" },
   ],
   sanaa: [
-    { code: "USD", label: "دولار أمريكي", value: "533", trend: "+0.1%" },
-    { code: "SAR", label: "ريال سعودي", value: "140", trend: "-0.2%" },
-    { code: "EUR", label: "يورو", value: "572", trend: "+0.2%" },
+    { code: "USD", label: "دولار أمريكي", buy: "531", sell: "533" },
+    { code: "SAR", label: "ريال سعودي", buy: "139.8", sell: "140.2" },
   ],
 };
 
-const goldRows: Row[] = [
-  { code: "21K", label: "الذهب عيار 21", value: "42,300", trend: "+1.1%" },
-  { code: "18K", label: "الذهب عيار 18", value: "36,100", trend: "+0.9%" },
-];
+// أسعار الذهب حسب المدينة (بيع) - مصدر: boqash.com/prices-gold بتاريخ 2026-08-10
+const goldRows: Record<City, GoldRow[]> = {
+  aden: [
+    { code: "21K", label: "الذهب عيار 21", value: "202,900", trend: "+1.0%" },
+    { code: "جنيه", label: "جنيه ذهب", value: "1,537,500", trend: "0.0%" },
+  ],
+  sanaa: [
+    { code: "21K", label: "الذهب عيار 21", value: "66,500", trend: "-2.9%" },
+    { code: "جنيه", label: "جنيه ذهب", value: "522,000", trend: "+0.4%" },
+  ],
+};
 
 const cityTabs: { id: City; label: string }[] = [
   { id: "aden", label: "عدن" },
   { id: "sanaa", label: "صنعاء" },
 ];
 
-function RateRow({ row, unit }: { row: Row; unit: string }) {
-  const isUp = row.trend.startsWith("+");
+function trendIcon(trend: string) {
+  if (trend.startsWith("+")) return <TrendingUp className="h-3 w-3" />;
+  if (trend.startsWith("-")) return <TrendingDown className="h-3 w-3" />;
+  return <Minus className="h-3 w-3" />;
+}
+
+function trendClass(trend: string) {
+  if (trend.startsWith("+")) return "bg-emerald-50 text-emerald-600";
+  if (trend.startsWith("-")) return "bg-accent/10 text-accent";
+  return "bg-surface text-muted-foreground";
+}
+
+function CurrencyRateRow({ row }: { row: CurrencyRow }) {
+  return (
+    <li className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+      <div className="flex items-center gap-3">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface text-[10px] font-extrabold text-muted-foreground">
+          {row.code}
+        </span>
+        <span className="font-semibold">{row.label}</span>
+      </div>
+      <div className="flex items-center gap-3 text-xs">
+        <span className="flex flex-col items-end">
+          <span className="text-muted-foreground">شراء</span>
+          <span className="font-mono font-bold tabular-nums text-foreground">{row.buy}</span>
+        </span>
+        <span className="flex flex-col items-end">
+          <span className="text-muted-foreground">بيع</span>
+          <span className="font-mono font-bold tabular-nums text-foreground">{row.sell}</span>
+        </span>
+      </div>
+    </li>
+  );
+}
+
+function GoldRateRow({ row }: { row: GoldRow }) {
   return (
     <li className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
       <div className="flex items-center gap-3">
@@ -41,14 +82,12 @@ function RateRow({ row, unit }: { row: Row; unit: string }) {
       <div className="flex items-center gap-3">
         <span className="font-mono text-sm font-bold tabular-nums">
           {row.value}
-          <span className="ms-1 text-xs font-normal text-muted-foreground">{unit}</span>
+          <span className="ms-1 text-xs font-normal text-muted-foreground">ريال</span>
         </span>
         <span
-          className={`flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-bold tabular-nums ${
-            isUp ? "bg-emerald-50 text-emerald-600" : "bg-accent/10 text-accent"
-          }`}
+          className={`flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-bold tabular-nums ${trendClass(row.trend)}`}
         >
-          {isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+          {trendIcon(row.trend)}
           {row.trend}
         </span>
       </div>
@@ -90,15 +129,17 @@ export function MarketWidget() {
 
       <ul className="divide-y divide-border">
         {currencyRows[city].map((row) => (
-          <RateRow key={row.code} row={row} unit="ريال" />
+          <CurrencyRateRow key={row.code} row={row} />
         ))}
       </ul>
 
       <div className="border-t-4 border-double border-border">
-        <p className="px-4 pt-2 text-[11px] font-bold text-muted-foreground">أسعار الذهب</p>
+        <p className="px-4 pt-2 text-[11px] font-bold text-muted-foreground">
+          أسعار الذهب — {city === "aden" ? "عدن" : "صنعاء"}
+        </p>
         <ul className="divide-y divide-border">
-          {goldRows.map((row) => (
-            <RateRow key={row.code} row={row} unit="ريال / غرام" />
+          {goldRows[city].map((row) => (
+            <GoldRateRow key={row.code} row={row} />
           ))}
         </ul>
       </div>
