@@ -58,8 +58,25 @@ export function useTableRows<T = Record<string, unknown>>(
 }
 
 export async function uploadMedia(file: File, userId?: string) {
-  const path = `${Date.now()}-${file.name.replace(/[^\w.\-]/g, "_")}`;
-  const { error } = await supabase.storage.from("media").upload(path, file, { upsert: false });
+  return uploadMediaBlob(file, file.name, file.type, file.size, userId);
+}
+
+/**
+ * نفس منطق uploadMedia لكن يقبل أي Blob (وليس فقط File مباشرة) — يُستخدم
+ * عند رفع صورة بعد معالجتها محلياً (تحسين/علامة مائية) قبل رفعها.
+ */
+export async function uploadMediaBlob(
+  blob: Blob,
+  fileName: string,
+  mimeType: string,
+  sizeBytes: number,
+  userId?: string,
+) {
+  const path = `${Date.now()}-${fileName.replace(/[^\w.\-]/g, "_")}`;
+  const { error } = await supabase.storage.from("media").upload(path, blob, {
+    upsert: false,
+    contentType: mimeType,
+  });
   if (error) throw error;
   const { data, error: signError } = await supabase.storage
     .from("media")
@@ -67,9 +84,9 @@ export async function uploadMedia(file: File, userId?: string) {
   if (signError || !data) throw signError ?? new Error("تعذر إنشاء رابط الملف");
   await supabase.from("media").insert({
     url: data.signedUrl,
-    file_name: file.name,
-    mime_type: file.type,
-    size_bytes: file.size,
+    file_name: fileName,
+    mime_type: mimeType,
+    size_bytes: sizeBytes,
     uploaded_by: userId ?? null,
   });
   return data.signedUrl;
