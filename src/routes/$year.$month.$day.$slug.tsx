@@ -107,7 +107,9 @@ function ArticlePage() {
             </h1>
 
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-border py-3 text-xs text-muted-foreground">
-              <span className="font-bold text-foreground">{article.author?.name ?? "هيئة التحرير"}</span>
+              {article.author?.name ? (
+                <span className="font-bold text-foreground">{article.author.name}</span>
+              ) : null}
               <span>{formatArabicDateTime(article.published_at)}</span>
               {/* إخفاء مؤقت لعدد المشاهدات - لإعادة الإظهار احذفي التعليق عن الكتلة التالية
               <span className="flex items-center gap-1">
