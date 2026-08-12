@@ -119,7 +119,7 @@ function LatestNewsList({ posts }: { posts: PostSummary[] }) {
 
 function HomePage() {
   const loaderData = Route.useLoaderData();
-  const { posts, breaking, ads, mostRead, latestNews, marketRates } = loaderData;
+  const { posts, breaking, ads, mostRead, latestNews, marketRates, sectionPostsByCategoryId } = loaderData;
   const categories = loaderData.categories as unknown as CategoryRow[];
   const all = posts as unknown as PostSummary[];
   const featured = all.filter((p) => p.is_featured).slice(0, 5);
@@ -142,9 +142,9 @@ function HomePage() {
             <AdSlot placement="home-inline" ads={ads} className="h-24" />
 
             {mainCategories.map((cat) => {
-              const items = all
-                .filter((p) => p.category?.slug === cat.slug)
-                .slice(0, 4);
+              // كل قسم يعرض أحدث أخباره الخاصة (جاءت من استعلام مستقل بالـloader)
+              // بدل الفلترة على قائمة آخر 60 خبر عام بالموقع
+              const items = (sectionPostsByCategoryId?.[cat.id] ?? []) as PostSummary[];
               if (!items.length) return null;
               return (
                 <section key={cat.id}>
