@@ -3,7 +3,7 @@ import { z } from "zod";
 import { publicClient, POST_FIELDS } from "./news.server";
 
 // الأقسام التي تُعرض أخبارها ضمن قائمة "أحدث الأخبار" بالرئيسية
-const LATEST_NEWS_CATEGORY_NAMES = ["أخبار وتقارير", "شؤون دولية"];
+const LATEST_NEWS_CATEGORY_NAMES = ["أخبار وتقارير", "شؤون دولية", "أخبار اليمن"];
 
 export const getHomeData = createServerFn({ method: "GET" }).handler(async () => {
   const db = publicClient();
