@@ -110,18 +110,37 @@ function AdminLayout() {
           <div className="flex shrink-0 gap-2">
             <Button asChild variant="outline" size="sm">
               <a href="/" target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4" /> الموقع
+                <ExternalLink className="h-4 w-4" /> <span className="hidden sm:inline">الموقع</span>
               </a>
             </Button>
             <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="h-4 w-4" /> خروج
+              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">خروج</span>
             </Button>
           </div>
         </header>
 
-        {open ? <div className="bg-sidebar lg:hidden">{sidebar}</div> : null}
+        {open ? (
+          <>
+            <div
+              className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+              onClick={() => setOpen(false)}
+              aria-hidden="true"
+            />
+            <div className="fixed inset-y-0 start-0 z-50 w-72 max-w-[80vw] bg-sidebar shadow-xl lg:hidden">
+              <div className="flex items-center gap-2 border-b border-sidebar-border px-4 py-4">
+                <span className="grid h-9 w-9 place-items-center rounded bg-accent font-display font-black text-accent-foreground">
+                  ش
+                </span>
+                <span className="font-display text-base font-black text-sidebar-foreground">
+                  لوحة شمسان نيوز
+                </span>
+              </div>
+              {sidebar}
+            </div>
+          </>
+        ) : null}
 
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="flex-1 overflow-x-hidden p-4 sm:p-6">
           {roles && roles.length === 0 ? (
             <div className="mb-6 rounded border border-accent/40 bg-accent/10 p-4 text-sm">
               حسابك غير مرتبط بصلاحية تحرير بعد. تواصل مع مدير النظام لمنحك دور «محرر» أو «مدير».
