@@ -19,13 +19,21 @@ const BAND_HEIGHT_PERCENT = 0.33;
 const LINE_THICKNESS = 3; // سمك الخط المستقيم العلوي (بدل انحناء الموجة)
 const FADE_H = 90; // ارتفاع تدرّج التعتيم فوق الشريط الذي يذوب داخل الصورة
 
-const BAND_COLOR_TOP = "rgb(15, 23, 42)";
-const BAND_COLOR_BOTTOM = "rgb(26, 43, 73)";
-const CURVE_COLOR = "rgb(195, 16, 45)"; // أحمر — لون الخط المستقيم العلوي
+// نفس ألوان هوية الموقع تمامًا (primary/accent بملف styles.css محوّلة من oklch
+// إلى rgb)، لكن بتدرّج أعمق وأغمق (broadcast-style) بدل الكحلي الفاتح —
+// يعطي تباينًا وإحساسًا احترافيًا أقرب لقنوات عالمية (BBC / الجزيرة).
+const BAND_COLOR_TOP = "rgb(14, 20, 32)"; // primary الموقع تقريبًا
+const BAND_COLOR_BOTTOM = "rgb(6, 9, 16)"; // أغمق نحو الأسود لعمق أكبر
+const CURVE_COLOR = "rgb(194, 21, 47)"; // accent الموقع تمامًا — لون الخط المستقيم العلوي
+const HAIRLINE_COLOR = "rgba(255, 255, 255, 0.18)"; // خط شعرة أبيض فوق الخط الأحمر مباشرة — يعطي عمقًا "منحوتًا"
 const TEXT_COLOR = "rgb(248, 248, 246)";
-const SITE_NAME_COLOR = "rgb(196, 20, 46)";
-const DIVIDER_COLOR = "rgba(255, 255, 255, 0.24)"; // فاصل رفيع خفيف بين كتلة الشعار وكتلة العنوان
-const ACCENT_COLOR = "rgb(195, 16, 45)"; // أحمر — الشريط العمودي الصغير (kicker) جنب العنوان
+const TEXT_SHADOW_COLOR = "rgba(0, 0, 0, 0.55)"; // ظل خفيف خلف العنوان لوضوح أعلى فوق أي صورة
+const SITE_BADGE_BG = "rgb(194, 21, 47)"; // شارة حمراء مصمتة خلف اسم الموقع (بدل نص أحمر عادي) — أسلوب "channel bug" عالمي
+const SITE_BADGE_TEXT = "rgb(255, 255, 255)";
+const LOGO_DISC_BG = "rgba(255, 255, 255, 0.94)"; // قرص دائري ناعم خلف الشعار بدل مربع أبيض حاد
+const LOGO_DISC_RING = "rgba(255, 255, 255, 0.22)"; // حلقة رفيعة حول القرص
+const DIVIDER_COLOR_MID = "rgba(255, 255, 255, 0.28)"; // فاصل متدرّج (يذوب من الطرفين) بين كتلة الشعار وكتلة العنوان
+const ACCENT_COLOR = "rgb(194, 21, 47)"; // أحمر — الشريط العمودي الصغير (kicker) جنب العنوان
 
 const HEADLINE_FONT_SIZE = 54;
 const HEADLINE_FONT_MIN_SIZE = 30; // أصغر حجم خط مسموح قبل تكبير الشريط بدل قصّ النص
@@ -42,6 +50,10 @@ const GAP_BETWEEN = 30;
 const DIVIDER_GAP = 26; // مسافة الفاصل الرفيع بين كتلة الشعار/الاسم وكتلة العنوان
 const ACCENT_BAR_W = 4; // عرض الشريط الأحمر الصغير (kicker)
 const ACCENT_GAP = 18; // مسافة بين الشريط الأحمر وبداية نص العنوان
+const LOGO_DISC_PAD = 14; // هامش القرص الدائري حول الشعار
+const BADGE_PAD_X = 20; // حشوة أفقية داخل شارة اسم الموقع الحمراء
+const BADGE_PAD_Y = 12; // حشوة رأسية داخل شارة اسم الموقع الحمراء
+const BADGE_RADIUS = 8; // استدارة زوايا شارة اسم الموقع
 
 // نفس الخط الفعلي المستخدم بالموقع (IBM Plex Arabic بوزن Bold)، بدل
 // Amiri-Bold المستخدم بنسخة البوت — أقرب لهوية الموقع البصرية الفعلية.
@@ -119,22 +131,47 @@ function drawBand(ctx: CanvasRenderingContext2D, width: number, height: number, 
   // تدرّج تعتيم ناعم فوق الشريط يذوب داخل الصورة الأصلية (بدل القطع الفجائي)
   if (fadeH > 0) {
     const fadeGradient = ctx.createLinearGradient(0, fadeTop, 0, topY);
-    fadeGradient.addColorStop(0, "rgba(15, 23, 42, 0)");
-    fadeGradient.addColorStop(1, "rgba(15, 23, 42, 1)");
+    fadeGradient.addColorStop(0, "rgba(6, 9, 16, 0)");
+    fadeGradient.addColorStop(1, "rgba(6, 9, 16, 1)");
     ctx.fillStyle = fadeGradient;
     ctx.fillRect(0, fadeTop, width, fadeH);
   }
 
-  // تدرّج كحلي رأسي عبر كامل ارتفاع الشريط (معتم بالكامل)
+  // تدرّج رأسي عبر كامل ارتفاع الشريط — من كحلي هوية الموقع أعلى الشريط
+  // إلى أسود شبه كامل أسفله (معتم بالكامل)، لعمق وتباين أقوى بأسلوب البث
+  // الإخباري العالمي بدل اللون الكحلي المسطّح الفاتح
   const gradient = ctx.createLinearGradient(0, topY, 0, height);
   gradient.addColorStop(0, BAND_COLOR_TOP);
   gradient.addColorStop(1, BAND_COLOR_BOTTOM);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, topY, width, bandH);
 
-  // خط الحافة العلوية — مستقيم رفيع بدل المنحنى
+  // خط شعرة أبيض خفيف فوق الخط الأحمر مباشرة — يعطي إحساس "حافة منحوتة"
+  // بدل خط أحمر مسطّح وحيد
+  ctx.fillStyle = HAIRLINE_COLOR;
+  ctx.fillRect(0, topY - LINE_THICKNESS - 1, width, 1);
+
+  // خط الحافة العلوية — مستقيم رفيع بلون الـ accent الفعلي للموقع
   ctx.fillStyle = CURVE_COLOR;
   ctx.fillRect(0, topY - LINE_THICKNESS, width, LINE_THICKNESS);
+}
+
+/** يرسم زاوية مستديرة موحّدة (Path) — بديل خفيف الوزن عن roundRect لدعم متصفحات أقدم */
+function roundedRectPath(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }
 
 /**
@@ -188,19 +225,25 @@ export async function applyHeadlineDesign(
     ctx.drawImage(mainImage, sx, sy, sw, sh, 0, 0, OG_WIDTH, OG_HEIGHT);
 
     // 2) قياس مسبق لعرض كتلة الشعار+الاسم (لا يعتمد على ارتفاع الشريط)
-    //    عشان نعرف العرض المتاح للعنوان قبل تحديد حجم الخط النهائي
+    //    عشان نعرف العرض المتاح للعنوان قبل تحديد حجم الخط النهائي.
+    //    الشعار الآن داخل قرص دائري ناعم، واسم الموقع داخل شارة حمراء
+    //    مصمتة (بدل نص أحمر عادٍ على الخلفية) — لذا نحسب أبعادهما الفعلية
+    //    بما فيها الحشوة.
     const logoScale = Math.min(LOGO_SIZE / logo.naturalWidth, LOGO_SIZE / logo.naturalHeight, 1);
     const logoW = logo.naturalWidth * logoScale;
     const logoH = logo.naturalHeight * logoScale;
+    const logoDiscSize = Math.max(logoW, logoH) + LOGO_DISC_PAD * 2;
 
     ctx.direction = "rtl";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     ctx.font = `700 ${SITE_FONT_SIZE}px ${FONT_FAMILY}`;
-    const siteGap = 22;
-    const siteX = LEFT_MARGIN + logoW + siteGap;
+    const siteGap = 26;
+    const siteX = LEFT_MARGIN + logoDiscSize + siteGap;
     const siteTextW = ctx.measureText(siteName).width;
-    const leftBlockEndX = siteX + siteTextW + DIVIDER_GAP;
+    const badgeW = siteTextW + BADGE_PAD_X * 2;
+    const badgeH = SITE_FONT_SIZE + BADGE_PAD_Y * 2;
+    const leftBlockEndX = siteX + badgeW + DIVIDER_GAP;
     const accentX = leftBlockEndX + GAP_BETWEEN;
     const textStartX = accentX + ACCENT_BAR_W + ACCENT_GAP;
     const maxTextW = Math.max(100, OG_WIDTH - RIGHT_MARGIN - textStartX);
@@ -226,7 +269,7 @@ export async function applyHeadlineDesign(
     //    الأصلية ظاهراً فوق الشريط دائماً
     const defaultBandH = Math.round(OG_HEIGHT * BAND_HEIGHT_PERCENT);
     const maxBandH = OG_HEIGHT - MIN_PHOTO_VISIBLE;
-    const requiredBandH = TOP_PAD + BOTTOM_PAD + Math.max(LOGO_SIZE, textBlockH);
+    const requiredBandH = TOP_PAD + BOTTOM_PAD + Math.max(logoDiscSize, textBlockH);
     const bandH = Math.max(defaultBandH, Math.min(requiredBandH, maxBandH));
 
     drawBand(ctx, OG_WIDTH, OG_HEIGHT, bandH);
@@ -235,46 +278,88 @@ export async function applyHeadlineDesign(
     const rowBottom = OG_HEIGHT - BOTTOM_PAD;
     const rowCenterY = (rowTop + rowBottom) / 2;
 
-    // 5) الشعار + اسمه يسار الشريط (بدون خط عمودي ثقيل بينهما — مساحة تنفّس فقط)
-    const logoX = LEFT_MARGIN;
-    const logoY = rowCenterY - logoH / 2;
+    // 5) الشعار داخل قرص دائري ناعم (بدل مربع أبيض حاد) بظل خفيف يفصله عن
+    //    الخلفية، ثم اسم الموقع داخل شارة حمراء مصمتة نصها أبيض — أسلوب
+    //    "channel bug" المعتمد بالقنوات الإخبارية العالمية بدل نص أحمر عادي
+    const logoDiscX = LEFT_MARGIN;
+    const logoDiscY = rowCenterY - logoDiscSize / 2;
+    ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 2;
+    ctx.fillStyle = LOGO_DISC_BG;
+    roundedRectPath(ctx, logoDiscX, logoDiscY, logoDiscSize, logoDiscSize, logoDiscSize / 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = LOGO_DISC_RING;
+    ctx.lineWidth = 1.5;
+    roundedRectPath(
+      ctx,
+      logoDiscX + 0.75,
+      logoDiscY + 0.75,
+      logoDiscSize - 1.5,
+      logoDiscSize - 1.5,
+      (logoDiscSize - 1.5) / 2
+    );
+    ctx.stroke();
+    ctx.restore();
+
+    const logoX = logoDiscX + (logoDiscSize - logoW) / 2;
+    const logoY = logoDiscY + (logoDiscSize - logoH) / 2;
     ctx.drawImage(logo, logoX, logoY, logoW, logoH);
 
+    const badgeY = rowCenterY - badgeH / 2;
+    ctx.fillStyle = SITE_BADGE_BG;
+    roundedRectPath(ctx, siteX, badgeY, badgeW, badgeH, BADGE_RADIUS);
+    ctx.fill();
+
     ctx.font = `700 ${SITE_FONT_SIZE}px ${FONT_FAMILY}`;
-    ctx.fillStyle = SITE_NAME_COLOR;
+    ctx.fillStyle = SITE_BADGE_TEXT;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(siteName, siteX, rowCenterY);
+    ctx.fillText(siteName, siteX + BADGE_PAD_X, rowCenterY + 1);
 
-    // فاصل رفيع خفيف بين كتلة الشعار/الاسم وكتلة العنوان (بدل تكرار نفس
-    // الخط الثقيل) — يمنح توازناً واضحاً بين يمين الصورة ويسارها
-    const dividerX = siteX + siteTextW + DIVIDER_GAP;
+    // فاصل رفيع يذوب من طرفيه (تدرّج شفافية) بين كتلة الشعار/الاسم وكتلة
+    // العنوان — أنعم من خط ثابت الشفافية، يمنح توازناً واضحاً بين يمين
+    // الصورة ويسارها دون أن يبدو كخط قاطع صلب
+    const dividerX = siteX + badgeW + DIVIDER_GAP;
+    const dividerGradient = ctx.createLinearGradient(0, rowTop, 0, rowBottom);
+    dividerGradient.addColorStop(0, "rgba(255, 255, 255, 0)");
+    dividerGradient.addColorStop(0.5, DIVIDER_COLOR_MID);
+    dividerGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
     ctx.save();
-    ctx.strokeStyle = DIVIDER_COLOR;
+    ctx.strokeStyle = dividerGradient;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(dividerX, rowTop + 6);
-    ctx.lineTo(dividerX, rowBottom - 6);
+    ctx.moveTo(dividerX, rowTop);
+    ctx.lineTo(dividerX, rowBottom);
     ctx.stroke();
     ctx.restore();
 
     // 6) عنوان الخبر يمين الشريط — كل الأسطر تُرسم كاملة (lines أعلاه لا تُقصّ إطلاقاً)
-    ctx.font = `700 ${fontSize}px ${FONT_FAMILY}`;
-    ctx.fillStyle = TEXT_COLOR;
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-
     const startY = rowCenterY - textBlockH / 2 + lineH / 2;
     const rightEdge = OG_WIDTH - RIGHT_MARGIN;
 
-    // شريط أحمر عمودي صغير (kicker) يفتح كتلة العنوان — لمسة القنوات العالمية
+    // شريط أحمر عمودي صغير مستدير الزوايا (kicker) يفتح كتلة العنوان — لمسة القنوات العالمية
     ctx.fillStyle = ACCENT_COLOR;
-    ctx.fillRect(accentX, rowCenterY - textBlockH / 2, ACCENT_BAR_W, textBlockH);
+    roundedRectPath(ctx, accentX, rowCenterY - textBlockH / 2, ACCENT_BAR_W, textBlockH, 2);
+    ctx.fill();
 
+    // ظل خفيف خلف نص العنوان لوضوح أعلى فوق أي صورة خلفية، مهما كانت مزدحمة
+    ctx.save();
+    ctx.font = `700 ${fontSize}px ${FONT_FAMILY}`;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = TEXT_SHADOW_COLOR;
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 2;
     ctx.fillStyle = TEXT_COLOR;
     lines.forEach((line, i) => {
       ctx.fillText(line, rightEdge, startY + i * lineH);
     });
+    ctx.restore();
 
     // 7) توليد المخرجات النهائية بصيغة WebP
     const blob = await new Promise<Blob>((resolve, reject) => {
