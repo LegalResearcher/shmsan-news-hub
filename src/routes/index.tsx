@@ -54,17 +54,36 @@ function LatestNewsList({ posts }: { posts: PostSummary[] }) {
     <section>
       <SectionHeading title="أحدث الأخبار" />
       <ul className="space-y-3">
-        {pageItems.map((post) => (
-          <li key={post.id}>
-            <Link
-              to="/$year/$month/$day/$slug"
-              params={articlePath(post)}
-              className="block rounded border border-border bg-surface px-4 py-3 font-bold leading-7 transition-colors hover:border-accent hover:text-accent"
-            >
-              {post.title}
-            </Link>
-          </li>
-        ))}
+        {pageItems.map((post) => {
+          const catName = post.category?.name;
+          const isYemen = catName === "أخبار اليمن";
+          const isIntl = catName === "شؤون دولية";
+          const accentBorder = isYemen
+            ? "border-r-4 border-r-red-600 border-y-border border-l-border"
+            : isIntl
+              ? "border-r-4 border-r-blue-600 border-y-border border-l-border"
+              : "border-border";
+          return (
+            <li key={post.id}>
+              <Link
+                to="/$year/$month/$day/$slug"
+                params={articlePath(post)}
+                className={`flex items-center justify-between gap-3 rounded border bg-surface px-4 py-3 font-bold leading-7 transition-colors hover:border-accent hover:text-accent ${accentBorder}`}
+              >
+                <span>{post.title}</span>
+                {isYemen ? (
+                  <span className="shrink-0 rounded bg-red-600 px-2 py-0.5 text-xs font-bold text-white">
+                    اليمن
+                  </span>
+                ) : isIntl ? (
+                  <span className="shrink-0 rounded bg-blue-600 px-2 py-0.5 text-xs font-bold text-white">
+                    دولي
+                  </span>
+                ) : null}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
       {totalPages > 1 ? (
         <div className="mt-4 flex items-center justify-center gap-3">
