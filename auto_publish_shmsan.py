@@ -7,9 +7,14 @@ import sys
 #  alkhabar.py) — تمنع تشغيلين متزامنين لهذا السكربت لو تشغيل سابق عبر
 #  cron لسه شغّال ولم ينتهِ قبل بداية التشغيل التالي.
 # ══════════════════════════════════════════════════════════════════════
-LOCK_FILE_PATH = "/storage/emulated/0/Download/shmsan_bot/auto_publish_shmsan.lock"
+# ملاحظة: على Render لا حاجة فعلية لهذا القفل — Render يضمن عدم تشغيل
+# تشغيلتين متزامنتين لنفس Cron Job أصلاً (Single-run guarantee). أبقيناه هنا
+# فقط لبقاء نفس السلوك لو شغّلت السكربت يدوياً من مكان آخر بالتوازي.
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_DATA_DIR = os.environ.get("BOT_DATA_DIR", os.path.join(_SCRIPT_DIR, "shmsan_data"))
+LOCK_FILE_PATH = os.path.join(_DATA_DIR, "auto_publish_shmsan.lock")
 
-sys.path.insert(0, "/storage/emulated/0/Download/shmsan_bot")
+sys.path.insert(0, _SCRIPT_DIR)
 
 from shmsan_news_bot import (
     log,
