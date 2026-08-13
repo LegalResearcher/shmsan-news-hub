@@ -140,16 +140,31 @@ def _normalize_ar_for_blocking(text: str) -> str:
 # (رقم الخبر أثناء التشغيل). يُقرأ في بداية كل تشغيل جديد ليُستبعد أي خبر
 # رابطه موجود هنا تلقائياً، حتى لو لم يُنشر أبداً بجدول posts (وبالتالي لا
 # يظهر ضمن existing_urls). هذا مستقل تماماً عن Supabase.
-BLOCKED_LINKS_FILE = "/storage/emulated/0/Download/shmsan_bot/blocked_links.json"
+# BOT_DATA_DIR: مجلد بيانات محلي قابل للتهيئة عبر متغير بيئة — يعمل على
+# Termux (مرّر المسار القديم كمتغير بيئة لو أردت الإبقاء عليه) وعلى Render
+# (حيث لا يوجد قرص دائم أصلاً، فهذا المجلد يُعاد إنشاؤه فارغاً كل تشغيلة —
+# هذا متوقع ولا يؤثر على منع التكرار الفعلي، المعتمد على Supabase مباشرة).
+BASE_DIR = os.environ.get(
+    "BOT_DATA_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "shmsan_data"),
+)
+os.makedirs(BASE_DIR, exist_ok=True)
+
+BLOCKED_LINKS_FILE = os.path.join(BASE_DIR, "blocked_links.json")
 
 # يتتبّع الأخبار المجدولة (status=scheduled) اللي لسا ما اتأكدنا من نشرها
 # فعلياً ولا أرسلنا رابطها لتيليجرام بعد — يُفحص هذا الملف بأول كل تشغيلة
 # جديدة للسكربت (شوف check_and_notify_scheduled_posts)
-PENDING_SCHEDULED_FILE = "/storage/emulated/0/Download/shmsan_bot/pending_scheduled.json"
+PENDING_SCHEDULED_FILE = os.path.join(BASE_DIR, "pending_scheduled.json")
 
 # بيانات Supabase الخاصة بموقع شمسان نيوز
-SUPABASE_URL = "https://zohwxeavzpthudrwyyuh.supabase.co"
-SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvaHd4ZWF2enB0aHVkcnd5eXVoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjMxNjM5MSwiZXhwIjoyMTAxODkyMzkxfQ.Udluufy_BdUHOEZ4Z9JQ6eNIfv1_aa7FQ8Wy-rylzws"
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
+if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+    raise RuntimeError(
+        "⛔ متغيرات البيئة SUPABASE_URL / SUPABASE_SERVICE_KEY غير مضبوطة. "
+        "أضفهما من لوحة Render (Environment) قبل التشغيل."
+    )
 # ⚠️ لازم يكون هذا تحديداً service_role key (مو anon/publishable)، لأن جدول
 # posts بمشروع شمسان نيوز عليه RLS مفعّل (rls_enabled=true) بدون Policy تسمح
 # بالإدخال العام. تجده بلوحة Supabase: Project Settings → API Keys → service_role
@@ -297,7 +312,10 @@ IMAGE_SQUARE_QUALITY_STEP = 5
 # مسار ملف الشعار (PNG شفاف) على الجهاز — نفس sail-logo.png المستخدم
 # بالضبط بأداة العلامة المائية اليدوية بالموقع (imageWatermark.ts). لو الملف
 # غير موجود بهذا المسار، تُتجاوز العلامة المائية تلقائياً بدون إيقاف البوت.
-WATERMARK_LOGO_PATH = os.path.join(os.path.expanduser("~"), "shmsan_bot", "sail-logo.png")
+# شعار العلامة المائية — ضع sail-logo.png بجذر المستودع نفسه (بجانب هذا
+# الملف) وادفعه لـGit حتى يعمل على Render؛ لو غير موجود، ينشر بدون شعار
+# (تعامل آمن، شوف get_post_image_url).
+WATERMARK_LOGO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sail-logo.png")
 
 # ⚠️ نفس القيم الأربعة حرفياً بملف src/lib/imageWatermark.ts بالموقع —
 # أي تعديل هنا لازم ينعكس هناك وإلا صارت الصورة المائية شكلها مختلف حسب
@@ -317,7 +335,12 @@ WATERMARK_LOGO_OPACITY = 0.85        # شفافية الشعار (0-1)
 HEADLINE_DESIGN_ENABLED = True
 
 # خط عربي Bold يدعم العربية (Amiri-Bold / Cairo-Bold / Tajawal-Bold...)
-HEADLINE_FONT_PATH = os.path.join(os.path.expanduser("~"), "shmsan_bot", "fonts", "Amiri-Bold.ttf")
+# نفس مبدأ WATERMARK_LOGO_PATH: ضع مجلد fonts/Amiri-Bold.ttf بجذر المستودع
+# وادفعه لـGit حتى يعمل على Render (لو غير موجود: تصميم صورة العنوان
+# يُتخطى فقط، بدون توقف السكربت — شوف السطر أدناه في الكود الأصلي).
+HEADLINE_FONT_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "fonts", "Amiri-Bold.ttf"
+)
 HEADLINE_SITE_NAME = "شمسان نيوز"
 
 # 🎨 الهوية اللونية الفعلية لموقع aljnoubvoice.com (كحلي الهيدر + أحمر «عاجل»)
@@ -347,7 +370,7 @@ HEADLINE_MIN_PHOTO_VISIBLE = 90   # أقل ارتفاع من الصورة الأ
 # تُنشر، وليس مقصوصة). أي صورة (jpg/jpeg/png/webp) تضعها هنا تُقارَن تلقائياً
 # بكل صورة خبر جديدة (كاملة، مقابل كاملة) قبل رفعها. لو ما فيه أي صورة
 # بالمجلد، الفحص يُتجاوز تلقائياً وتُنشر الصور عادي (بدون توقف البوت).
-BLOCKED_LOGOS_DIR = "/storage/emulated/0/Download/shmsan_bot/blocked_logos"
+BLOCKED_LOGOS_DIR = os.path.join(BASE_DIR, "blocked_logos")
 
 # حجم "البصمة المرئية" (average hash) — 8 يعني مقارنة على أساس 64 بت
 LOGO_HASH_SIZE = 8
@@ -360,7 +383,7 @@ LOGO_MATCH_MAX_DISTANCE = 6
 # ══════════════════════════════════════════════════════════════════════
 
 TELEGRAM_ENABLED = True
-TELEGRAM_BOT_TOKEN = "8561971949:AAHAUs3s0E31B-uhZtukZGgD1VzaxF7EFCs"
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHANNEL_ID = "@shmsannews"
 
 # 🔔 محادثة خاصة (وليست القناة العامة) لإرسال تنبيهات تقنية داخلية فقط
@@ -526,14 +549,11 @@ def request_google_indexing(urls: list) -> None:
 #  🔑  مفاتيح Gemini ونماذجه (تدوير تلقائي عند نفاذ الحصة)
 # ══════════════════════════════════════════════════════════════════════
 
+# تُقرأ من متغير بيئة GEMINI_API_KEYS بصيغة مفاتيح مفصولة بفواصل:
+# key1,key2,key3,key4,key5
 GEMINI_API_KEYS = [
-    "AQ.Ab8RN6LRPvg-AhQfVxE6s1jBecSx8Ydd4VKifctaV5Yu8FfLaA",
-    "AQ.Ab8RN6IvoVO4qmxVn0V-qBThbSJVg2wT9vjN9hSsnTDlY3FPFw",
-    "AQ.Ab8RN6IJQ6lOfFcS0ZN5sWj9fPykxUQ3OZGNfbl3lmKZENqZVw",
-    "AQ.Ab8RN6Lra6EBhH1mUpYn6GnZam2UugeDkPk-lG3XbyNRY-ICrg",
-    "AQ.Ab8RN6I2sFkU6NzmnViASRmzvf7JGNZPHg-Tw-m66JHzP3GZnw",
+    k.strip() for k in os.environ.get("GEMINI_API_KEYS", "").split(",") if k.strip()
 ]
-GEMINI_API_KEYS = [k for k in GEMINI_API_KEYS if k and k.strip()]
 
 # ══════════════════════════════════════════════════════════════════════
 #  🔑 منطق تدوير المفاتيح/النماذج (تدوير على مراحل متعددة، وليس مرحلتين
@@ -1941,7 +1961,7 @@ def save_blocked_link(link: str) -> None:
 #  📋  سجل العناوين المنشورة محلياً (لكشف التكرار عبر تشغيلات/فيدات مختلفة)
 # ══════════════════════════════════════════════════════════════════════
 
-PUBLISHED_TITLES_LOG_FILE = "/storage/emulated/0/Download/shmsan_bot/published_titles_log.json"
+PUBLISHED_TITLES_LOG_FILE = os.path.join(BASE_DIR, "published_titles_log.json")
 PUBLISHED_TITLES_MAX_AGE_HOURS = 24
 
 
