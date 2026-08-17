@@ -69,6 +69,25 @@ function ArticlePage() {
   const article = post as unknown as PostFull;
   const others = related as unknown as PostSummary[];
   const bodyRef = useRef<HTMLDivElement>(null);
+  const canonicalUrl = `${SEO_SITE_URL}${getPostUrl(article)}`;
+  const newsArticleSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
+    headline: article.title,
+    description: article.seo_description || article.excerpt || article.title,
+    image: article.cover_image ? [article.cover_image] : undefined,
+    datePublished: article.published_at,
+    dateModified: article.published_at,
+    author: { "@type": "Person", name: article.author?.name || "شمسان نيوز" },
+    publisher: {
+      "@type": "Organization",
+      name: "شمسان نيوز",
+      url: SEO_SITE_URL,
+      logo: { "@type": "ImageObject", url: `${SEO_SITE_URL}/logo.png` },
+    },
+    inLanguage: "ar",
+  }).replace(/</g, "\\u003c");
 
   // إضافة اسم الموقع ورابط الخبر تلقائياً عند نسخ نص من داخل المقال
   useEffect(() => {
@@ -96,6 +115,7 @@ function ArticlePage() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
           <article className="min-w-0">
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: newsArticleSchema }} />
             <nav className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
               <Link to="/" className="hover:text-accent">
                 الرئيسية
