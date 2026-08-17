@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { getPostUrl } from "@/lib/postUrl";
 
 function escapeXml(value: string) {
   return value
@@ -29,13 +30,11 @@ export const Route = createFileRoute("/api/public/rss.xml")({
         const origin = new URL(request.url).origin;
         const items = (data ?? [])
           .map((post) => {
-            const d = new Date(post.published_at);
-            const link = `${origin}/${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(
-              d.getDate(),
-            ).padStart(2, "0")}/${post.slug}`;
+            const publishedAt = new Date(post.published_at);
+            const link = `${origin}${getPostUrl(post)}`;
             return `<item><title>${escapeXml(post.title)}</title><link>${link}</link><guid>${link}</guid><description>${escapeXml(
               post.excerpt ?? "",
-            )}</description><pubDate>${d.toUTCString()}</pubDate></item>`;
+            )}</description><pubDate>${publishedAt.toUTCString()}</pubDate></item>`;
           })
           .join("");
 

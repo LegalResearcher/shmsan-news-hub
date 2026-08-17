@@ -1,129 +1,87 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const SITE_URL = "https://shmsannews.com";
+const YEMEN_OFFSET_MS = 3 * 60 * 60 * 1000;
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper to generate post URL
-function getPostUrl(post: { id: string; created_at: string; slug?: string | null; title?: string }): string {
-  const date = new Date(post.created_at);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const slug = post.slug || post.id;
-  return `/${year}/${month}/${day}/${slug}`;
+function getCanonicalPath(post: { id: string; published_at?: string | null; created_at?: string | null; slug?: string | null }): string {
+  const timestamp = post.published_at || post.created_at || new Date().toISOString();
+  const shifted = new Date(new Date(timestamp).getTime() + YEMEN_OFFSET_MS);
+  const year = shifted.getUTCFullYear();
+  const month = String(shifted.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(shifted.getUTCDate()).padStart(2, "0");
+  return `/${year}/${month}/${day}/${post.slug || post.id}`;
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    console.log("Checking for scheduled posts to publish...");
-
-    // Find posts that are scheduled and past their scheduled time
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
     const now = new Date().toISOString();
     const { data: scheduledPosts, error: fetchError } = await supabase
-      .from('posts')
-      .select('id, title, slug, created_at, scheduled_at')
-      .eq('status', 'scheduled')
-      .not('scheduled_at', 'is', null)
-      .lte('scheduled_at', now);
+      .from("posts")
+      .select("id,title,slug,created_at,published_at,scheduled_at")
+      .eq("status", "scheduled")
+      .not("scheduled_at", "is", null)
+      .lte("scheduled_at", now);
 
-    if (fetchError) {
-      console.error("Error fetching scheduled posts:", fetchError);
-      throw fetchError;
+    if (fetchError) throw fetchError;
+    if (!scheduledPosts?.length) {
+      return new Response(JSON.stringify({ success: true, message: "No posts to publish", published: 0 }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
-
-    if (!scheduledPosts || scheduledPosts.length === 0) {
-      console.log("No scheduled posts to publish");
-      return new Response(
-        JSON.stringify({ success: true, message: "No posts to publish", published: 0 }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log(`Found ${scheduledPosts.length} posts to publish`);
 
     const results = [];
-    const urlsToIndex = [];
-
     for (const post of scheduledPosts) {
       try {
-        // Update post status to published
+        // وقت النشر القانوني هو وقت الجدولة الفعلي بعد استحقاق النشر، وليس created_at.
+        const publishedAt = post.scheduled_at || now;
         const { error: updateError } = await supabase
-          .from('posts')
-          .update({ 
-            status: 'published',
-            scheduled_at: null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', post.id);
+          .from("posts")
+          .update({ status: "published", published_at: publishedAt, scheduled_at: null, updated_at: now })
+          .eq("id", post.id);
+        if (updateError) throw updateError;
 
-        if (updateError) {
-          console.error(`Failed to publish post ${post.id}:`, updateError);
-          results.push({ id: post.id, title: post.title, success: false, error: updateError.message });
-        } else {
-          console.log(`Published post: ${post.title}`);
-          const postUrl = `https://shamsan-news.com${getPostUrl(post)}`;
-          urlsToIndex.push(postUrl);
-          results.push({ id: post.id, title: post.title, success: true, url: postUrl });
-        }
-      } catch (error: any) {
-        console.error(`Error publishing post ${post.id}:`, error);
-        results.push({ id: post.id, title: post.title, success: false, error: error.message });
+        const canonicalUrl = `${SITE_URL}${getCanonicalPath({ ...post, published_at: publishedAt })}`;
+        console.log(`Published and discovery-ready: ${canonicalUrl}`);
+        results.push({ id: post.id, title: post.title, success: true, url: canonicalUrl, discovery_ready: true });
+      } catch (error) {
+        console.error(`Failed to publish scheduled post ${post.id}:`, error);
+        results.push({
+          id: post.id,
+          title: post.title,
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     }
 
-    // Request Google indexing for all published posts
-    if (urlsToIndex.length > 0) {
-      console.log(`Requesting indexing for ${urlsToIndex.length} URLs`);
-      
-      try {
-        const serviceAccountKeyStr = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY");
-        if (serviceAccountKeyStr) {
-          // Call the google-indexing function internally
-          const { data: indexingResult, error: indexingError } = await supabase.functions.invoke('google-indexing', {
-            body: { urls: urlsToIndex, type: 'URL_UPDATED' }
-          });
-
-          if (indexingError) {
-            console.error("Indexing request failed:", indexingError);
-          } else {
-            console.log("Indexing request sent successfully:", indexingResult);
-          }
-        } else {
-          console.log("Google Service Account key not configured, skipping indexing");
-        }
-      } catch (indexError) {
-        console.error("Error during indexing request:", indexError);
-      }
-    }
-
-    const successCount = results.filter(r => r.success).length;
-
+    const successCount = results.filter((result) => result.success).length;
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         message: `Published ${successCount} of ${scheduledPosts.length} posts`,
         published: successCount,
-        results
+        discovery: "Published posts are available through Sitemap, News Sitemap, and RSS.",
+        results,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Publish scheduled posts error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });

@@ -1,5 +1,6 @@
 // Advanced SEO Helpers for Google Indexing Optimization — نفس منطق الجنوب فويس حرفياً
 import { getPostImageOrLogo } from "./defaultImages";
+import { getCanonicalTimestamp, getPostUrl } from "./postUrl";
 
 export const SEO_SITE_URL = "https://shmsannews.com";
 export const SEO_SITE_NAME = "شمسان نيوز";
@@ -99,19 +100,15 @@ export function generateNewsArticleSchema(post: {
   content: string;
   image_url?: string;
   category?: string;
-  created_at: string;
-  updated_at?: string;
+  published_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
   author?: string;
   slug?: string;
   id: string;
 }): object {
-  const date = new Date(post.created_at);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const postSlug = post.slug || post.id;
-
-  const canonicalUrl = `${SEO_SITE_URL}/${year}/${month}/${day}/${postSlug}`;
+  const canonicalUrl = `${SEO_SITE_URL}${getPostUrl(post)}`;
+  const publishedAt = getCanonicalTimestamp(post);
 
   return {
     "@context": "https://schema.org",
@@ -123,8 +120,8 @@ export function generateNewsArticleSchema(post: {
     "headline": post.title,
     "description": post.excerpt || post.content.substring(0, 160),
     "image": [getPostImageOrLogo(post)],
-    "datePublished": post.created_at,
-    "dateModified": post.updated_at || post.created_at,
+    "datePublished": publishedAt,
+    "dateModified": post.updated_at || publishedAt,
     "author": {
       "@type": "Person",
       "name": post.author || SEO_SITE_NAME
@@ -141,32 +138,16 @@ export function generateNewsArticleSchema(post: {
 }
 
 /**
- * تنبيه محركات البحث بوجود محتوى جديد (Ping)
+ * يسجل أن الرابط سيظهر في Sitemap وNews Sitemap وRSS.
+ * لا توجد واجهة Ping مدعومة لفهرسة المقالات الإخبارية في Google.
  */
-export async function pingSearchEngines(sitemapUrl: string): Promise<{ google: boolean; bing: boolean }> {
-  const results = { google: false, bing: false };
-  try {
-    await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`, { method: 'GET', mode: 'no-cors' });
-    results.google = true;
-  } catch (e) { console.error('Google ping failed:', e); }
-
-  try {
-    await fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`, { method: 'GET', mode: 'no-cors' });
-    results.bing = true;
-  } catch (e) { console.error('Bing ping failed:', e); }
-
-  return results;
+export function logDiscoveryReady(url: string): void {
+  console.info(`الرابط جاهز للاكتشاف عبر Sitemap وNews Sitemap وRSS: ${url}`);
 }
 
 /**
  * توليد الرابط الكنسي (Canonical URL)
  */
-export function generateCanonicalUrl(post: { created_at: string; slug?: string; id: string }): string {
-  const date = new Date(post.created_at);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const postSlug = post.slug || post.id;
-
-  return `${SEO_SITE_URL}/${year}/${month}/${day}/${postSlug}`;
+export function generateCanonicalUrl(post: { published_at?: string | null; created_at?: string | null; slug?: string; id: string }): string {
+  return `${SEO_SITE_URL}${getPostUrl(post)}`;
 }

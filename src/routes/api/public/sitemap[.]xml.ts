@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { getPostUrl } from "@/lib/postUrl";
 
 function escapeXml(value: string) {
   return value
@@ -59,10 +60,7 @@ export const Route = createFileRoute("/api/public/sitemap.xml")({
 
         const postUrls = (posts ?? [])
           .map((post) => {
-            const d = new Date(post.published_at);
-            const link = `${origin}/${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(
-              d.getDate(),
-            ).padStart(2, "0")}/${post.slug}`;
+            const link = `${origin}${getPostUrl(post)}`;
             const lastmod = new Date(post.updated_at ?? post.published_at).toISOString();
             return urlTag(link, lastmod, "daily", "0.6");
           })

@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect, Link } from "@tanstack/react-router";
 import { Eye } from "lucide-react";
 import { getPostBySlug } from "@/lib/news.functions";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -9,11 +9,20 @@ import { MostRead } from "@/components/site/MostRead";
 import { AdSlot } from "@/components/site/AdSlot";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { formatArabicDateTime, type PostFull, type PostSummary } from "@/lib/news.types";
+import { getPostUrl } from "@/lib/postUrl";
+import { SEO_SITE_URL } from "@/lib/seoHelpers";
 
 export const Route = createFileRoute("/$year/$month/$day/$slug")({
   loader: async ({ params }) => {
     const data = await getPostBySlug({ data: { slug: params.slug } });
     if (!data.post) throw notFound();
+
+    const canonicalPath = getPostUrl(data.post);
+    const requestedPath = `/${params.year}/${params.month}/${params.day}/${encodeURIComponent(params.slug)}`;
+    if (requestedPath !== canonicalPath) {
+      throw redirect({ href: canonicalPath, statusCode: 301 });
+    }
+
     return data;
   },
   head: ({ loaderData }) => {
@@ -23,12 +32,15 @@ export const Route = createFileRoute("/$year/$month/$day/$slug")({
     }
     const title = post.seo_title ?? `${post.title} | شمسان نيوز`;
     const description = post.seo_description ?? post.excerpt ?? "تقرير من شمسان نيوز.";
+    const canonicalUrl = `${SEO_SITE_URL}${getPostUrl(post)}`;
     const meta = [
       { title },
       { name: "description", content: description },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "article" },
+      { property: "og:url", content: canonicalUrl },
+      { property: "article:published_time", content: post.published_at },
       { name: "twitter:card", content: "summary_large_image" },
     ];
     if (post.cover_image?.startsWith("https://")) {
@@ -37,7 +49,7 @@ export const Route = createFileRoute("/$year/$month/$day/$slug")({
         { name: "twitter:image", content: post.cover_image },
       );
     }
-    return { meta };
+    return { meta, links: [{ rel: "canonical", href: canonicalUrl }] };
   },
   component: ArticlePage,
   notFoundComponent: () => (

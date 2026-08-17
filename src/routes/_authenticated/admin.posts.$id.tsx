@@ -19,8 +19,8 @@ import {
 import { optimizeImage, isOptimizableImage, formatFileSize } from "@/lib/imageOptimizer";
 import { applyWatermark, generateWatermarkPreview } from "@/lib/imageWatermark";
 import { applyHeadlineDesign, generateHeadlineDesignPreview } from "@/lib/imageHeadlineDesign";
-import { generateMetaTitle, generateSEOSlug, extractSEOKeywords, SEO_SITE_URL, SEO_SITE_NAME } from "@/lib/seoHelpers";
-import { getPostUrl, generateSlug as generateUrlSlug } from "@/lib/postUrl";
+import { generateMetaTitle, generateSEOSlug, extractSEOKeywords, logDiscoveryReady, SEO_SITE_URL, SEO_SITE_NAME } from "@/lib/seoHelpers";
+import { getPostUrl } from "@/lib/postUrl";
 import { getCategoryDefaultImage, hasCategoryDefaultImage } from "@/lib/defaultImages";
 import { translateError, checkSlugExists, checkTitleExists } from "@/lib/errorTranslator";
 import { InternalLinkingSuggestions } from "@/components/InternalLinkingSuggestions";
@@ -599,31 +599,14 @@ function PostEditor() {
     }
     try {
       const savedId = await save.mutateAsync(form);
-      const postDate = form.publication_date ? new Date(form.publication_date) : new Date();
+      const publishedAt = form.publication_date
+        ? new Date(form.publication_date).toISOString()
+        : editingPost?.published_at || new Date().toISOString();
       const seoSlug = form.slug || generateSEOSlug(form.title);
-      const postPath = getPostUrl({ id: savedId ?? "", created_at: postDate.toISOString(), slug: seoSlug, title: form.title });
+      const postPath = getPostUrl({ id: savedId ?? "", published_at: publishedAt, slug: seoSlug, title: form.title });
       const postUrl = `${SEO_SITE_URL}${postPath}`;
-      toast.info(`جاري إرسال الرابط: ${postUrl}`);
-
-      const { data, error } = await supabase.functions.invoke("google-indexing", {
-        body: { urls: [postUrl], type: "URL_UPDATED" },
-      });
-      if (error) {
-        toast.error("تم نشر الخبر، لكن فشل الاتصال بـ Google Indexing API. تحقق من إعداد مفتاح الخدمة.");
-        return;
-      }
-      if (data?.error) {
-        toast.error(`تم نشر الخبر، لكن فشلت الفهرسة: ${data.error}`);
-        return;
-      }
-      const indexingResult = data?.results?.[0];
-      if (indexingResult?.success === true) {
-        toast.success("تم نشر الخبر وإرسال طلب الفهرسة إلى Google بنجاح!");
-      } else if (indexingResult?.success === false) {
-        toast.error(`تم نشر الخبر، لكن فشلت الفهرسة: ${indexingResult?.data?.error?.message || indexingResult?.error || "خطأ غير معروف"}`);
-      } else {
-        toast.warning("تم نشر الخبر. حالة الفهرسة غير مؤكدة.");
-      }
+      logDiscoveryReady(postUrl);
+      toast.success("تم نشر الخبر. سيظهر تلقائياً في Sitemap وNews Sitemap وRSS لاكتشافه من محركات البحث.");
     } catch (error) {
       console.error("Publish with indexing error:", error);
     }
@@ -971,12 +954,9 @@ function PostEditor() {
                 <p className="text-blue-600 text-lg truncate">{form.seo_title || form.title || "عنوان المقال"}</p>
                 <p className="text-green-700 text-sm" dir="ltr">
                   {(() => {
-                    const now = form.publication_date ? new Date(form.publication_date) : new Date();
-                    const y = now.getFullYear();
-                    const m = String(now.getMonth() + 1).padStart(2, "0");
-                    const d = String(now.getDate()).padStart(2, "0");
-                    const s = form.slug || generateUrlSlug(form.title) || "slug";
-                    return `${SEO_SITE_URL.replace(/^https?:\/\//, "")}/${y}/${m}/${d}/${s}`;
+                    const publishedAt = form.publication_date || editingPost?.published_at || new Date().toISOString();
+                    const slug = form.slug || generateSEOSlug(form.title) || "slug";
+                    return `${SEO_SITE_URL.replace(/^https?:\/\//, "")}${getPostUrl({ id: "preview", published_at: publishedAt, slug, title: form.title })}`;
                   })()}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">

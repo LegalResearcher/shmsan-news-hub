@@ -18,6 +18,7 @@ import { Route as RssRouteImport } from './routes/rss'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
+import { Route as ShareIdRouteImport } from './routes/share.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 import { Route as AuthenticatedAdminAuthorsRouteImport } from './routes/_authenticated/admin.authors'
@@ -31,6 +32,7 @@ import { Route as AuthenticatedAdminProfileRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminTagsRouteImport } from './routes/_authenticated/admin.tags'
 import { Route as ApiPublicRssDotxmlRouteImport } from './routes/api/public/rss[.]xml'
+import { Route as ApiPublicSitemapNewsDotxmlRouteImport } from './routes/api/public/sitemap-news[.]xml'
 import { Route as ApiPublicSitemapDotxmlRouteImport } from './routes/api/public/sitemap[.]xml'
 import { Route as YearMonthDaySlugRouteImport } from './routes/$year.$month.$day.$slug'
 import { Route as AuthenticatedAdminPostsIndexRouteImport } from './routes/_authenticated/admin.posts.index'
@@ -78,6 +80,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 const CategorySlugRoute = CategorySlugRouteImport.update({
   id: '/category/$slug',
   path: '/category/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareIdRoute = ShareIdRouteImport.update({
+  id: '/share/$id',
+  path: '/share/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -153,6 +160,12 @@ const ApiPublicRssDotxmlRoute = ApiPublicRssDotxmlRouteImport.update({
   path: '/api/public/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSitemapNewsDotxmlRoute =
+  ApiPublicSitemapNewsDotxmlRouteImport.update({
+    id: '/api/public/sitemap-news.xml',
+    path: '/api/public/sitemap-news.xml',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicSitemapDotxmlRoute = ApiPublicSitemapDotxmlRouteImport.update({
   id: '/api/public/sitemap.xml',
   path: '/api/public/sitemap.xml',
@@ -185,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/category/$slug': typeof CategorySlugRoute
+  '/share/$id': typeof ShareIdRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/authors': typeof AuthenticatedAdminAuthorsRoute
   '/admin/breaking': typeof AuthenticatedAdminBreakingRoute
@@ -197,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
+  '/api/public/sitemap-news.xml': typeof ApiPublicSitemapNewsDotxmlRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
@@ -211,6 +226,7 @@ export interface FileRoutesByTo {
   '/rss': typeof RssRoute
   '/search': typeof SearchRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/share/$id': typeof ShareIdRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/authors': typeof AuthenticatedAdminAuthorsRoute
   '/admin/breaking': typeof AuthenticatedAdminBreakingRoute
@@ -223,6 +239,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
+  '/api/public/sitemap-news.xml': typeof ApiPublicSitemapNewsDotxmlRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
@@ -240,6 +257,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/category/$slug': typeof CategorySlugRoute
+  '/share/$id': typeof ShareIdRoute
   '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/_authenticated/admin/authors': typeof AuthenticatedAdminAuthorsRoute
   '/_authenticated/admin/breaking': typeof AuthenticatedAdminBreakingRoute
@@ -252,6 +270,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/tags': typeof AuthenticatedAdminTagsRoute
   '/api/public/rss.xml': typeof ApiPublicRssDotxmlRoute
+  '/api/public/sitemap-news.xml': typeof ApiPublicSitemapNewsDotxmlRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/$year/$month/$day/$slug': typeof YearMonthDaySlugRoute
@@ -269,6 +288,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/admin'
     | '/category/$slug'
+    | '/share/$id'
     | '/admin/ads'
     | '/admin/authors'
     | '/admin/breaking'
@@ -281,6 +301,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/tags'
     | '/api/public/rss.xml'
+    | '/api/public/sitemap-news.xml'
     | '/api/public/sitemap.xml'
     | '/admin/'
     | '/$year/$month/$day/$slug'
@@ -295,6 +316,7 @@ export interface FileRouteTypes {
     | '/rss'
     | '/search'
     | '/category/$slug'
+    | '/share/$id'
     | '/admin/ads'
     | '/admin/authors'
     | '/admin/breaking'
@@ -307,6 +329,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/tags'
     | '/api/public/rss.xml'
+    | '/api/public/sitemap-news.xml'
     | '/api/public/sitemap.xml'
     | '/admin'
     | '/$year/$month/$day/$slug'
@@ -323,6 +346,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/_authenticated/admin'
     | '/category/$slug'
+    | '/share/$id'
     | '/_authenticated/admin/ads'
     | '/_authenticated/admin/authors'
     | '/_authenticated/admin/breaking'
@@ -335,6 +359,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/tags'
     | '/api/public/rss.xml'
+    | '/api/public/sitemap-news.xml'
     | '/api/public/sitemap.xml'
     | '/_authenticated/admin/'
     | '/$year/$month/$day/$slug'
@@ -351,7 +376,9 @@ export interface RootRouteChildren {
   RssRoute: typeof RssRoute
   SearchRoute: typeof SearchRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  ShareIdRoute: typeof ShareIdRoute
   ApiPublicRssDotxmlRoute: typeof ApiPublicRssDotxmlRoute
+  ApiPublicSitemapNewsDotxmlRoute: typeof ApiPublicSitemapNewsDotxmlRoute
   ApiPublicSitemapDotxmlRoute: typeof ApiPublicSitemapDotxmlRoute
   YearMonthDaySlugRoute: typeof YearMonthDaySlugRoute
 }
@@ -419,6 +446,13 @@ declare module '@tanstack/react-router' {
       path: '/category/$slug'
       fullPath: '/category/$slug'
       preLoaderRoute: typeof CategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share/$id': {
+      id: '/share/$id'
+      path: '/share/$id'
+      fullPath: '/share/$id'
+      preLoaderRoute: typeof ShareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -512,6 +546,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicRssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/sitemap-news.xml': {
+      id: '/api/public/sitemap-news.xml'
+      path: '/api/public/sitemap-news.xml'
+      fullPath: '/api/public/sitemap-news.xml'
+      preLoaderRoute: typeof ApiPublicSitemapNewsDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/sitemap.xml': {
       id: '/api/public/sitemap.xml'
       path: '/api/public/sitemap.xml'
@@ -600,10 +641,22 @@ const rootRouteChildren: RootRouteChildren = {
   RssRoute: RssRoute,
   SearchRoute: SearchRoute,
   CategorySlugRoute: CategorySlugRoute,
+  ShareIdRoute: ShareIdRoute,
   ApiPublicRssDotxmlRoute: ApiPublicRssDotxmlRoute,
+  ApiPublicSitemapNewsDotxmlRoute: ApiPublicSitemapNewsDotxmlRoute,
   ApiPublicSitemapDotxmlRoute: ApiPublicSitemapDotxmlRoute,
   YearMonthDaySlugRoute: YearMonthDaySlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
