@@ -998,7 +998,7 @@ function PostEditor() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="slug">الرابط الثابت (Slug)</Label>
-          <Input id="slug" dir="ltr" className="font-mono" placeholder={generateUrlSlug(form.title) || "سيُولّد من العنوان"}
+          <Input id="slug" dir="ltr" className="font-mono" placeholder={generateSEOSlug(form.title) || "سيُولّد من العنوان"}
             value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
         </div>
       </div>
